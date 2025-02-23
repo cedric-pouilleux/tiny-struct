@@ -1,0 +1,24 @@
+name: Deploy Integration
+
+on:
+  workflow_run:
+    workflows: ["Build & Push Docker Image"]
+    types: ["completed"]
+
+jobs:
+  deploy-int:
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    steps:
+      - name: Deploy to Integration VM
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/nuxt_app:latest
+            cd /home/github-ci/devbox
+            docker compose -f docker-compose.int.yml pull
+            docker compose -f docker-compose.int.yml -p integ up -d --force-recreate

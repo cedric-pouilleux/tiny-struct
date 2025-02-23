@@ -2,12 +2,8 @@ version: "3.8"
 
 services:
   nuxt-app:
-    image: nuxt_app_prod:latest
-    build:
-      context: ..
-      dockerfile: devbox/Dockerfile.prod
-    container_name: nuxt_prod
-    restart: always
+    image: miomnz/nuxt_app:latest
+    pull_policy: always
     ports:
       - "3000:3000"
     env_file:
