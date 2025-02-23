@@ -4,7 +4,7 @@ services:
   nuxt-app:
     image: nuxt_app_prod:latest
     build:
-      context: .. # On remonte d'un niveau pour inclure `app/`
+      context: ..
       dockerfile: devbox/Dockerfile.prod
     container_name: nuxt_prod
     restart: always

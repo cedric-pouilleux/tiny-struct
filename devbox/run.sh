@@ -1,27 +1,35 @@
 #!/bin/bash
 
-# Nom des fichiers docker-compose
 DEV_COMPOSE="docker-compose.dev.yml"
 INT_COMPOSE="docker-compose.int.yml"
 PROD_COMPOSE="docker-compose.prod.yml"
-
-# Nom de projet pour chaque environnement (docker compose -p ...)
 PROJECT_DEV="dev"
 PROJECT_INT="int"
 PROJECT_PROD="prod"
 
-# Affichage de l'aide
+if ! command -v docker &> /dev/null
+then
+    echo "❌ Docker is not installed. Please install it first."
+    exit 1
+fi
+
+if ! docker compose version &> /dev/null
+then
+    echo "❌ Docker Compose is not installed. Please update Docker."
+    exit 1
+fi
+
 usage() {
-  echo "Usage: $0 {start|stop|restart|status|logs} [dev|int|prod]"
-  echo "  - start [env]    : Lance l'environnement (dev, int ou prod)"
-  echo "  - stop [env]     : Arrête l'environnement (ou tous si pas d'argument)"
-  echo "  - restart [env]  : Redémarre l'environnement"
-  echo "  - status         : Affiche l'état des conteneurs"
-  echo "  - logs [env]     : Affiche les logs (ou tous si pas d'argument)"
+  echo "Usage: $0 {start|stop|restart|status|logs|pull} [dev|int|prod]"
+  echo "  - start [env]    : Start the specified environment (dev, int, or prod)"
+  echo "  - stop [env]     : Stop the specified environment (or all if no argument)"
+  echo "  - restart [env]  : Restart the specified environment"
+  echo "  - status         : Show the status of running containers"
+  echo "  - logs [env]     : Display logs for the specified environment (or all if no argument)"
+  echo "  - pull [env]     : Pull the latest Docker image from Docker Hub"
   exit 1
 }
 
-# Petite fonction utilitaire pour composer facilement la commande Docker
 compose_cmd() {
   local env="$1"
   local action="$2"
@@ -37,7 +45,6 @@ compose_cmd() {
       docker compose -p "$PROJECT_PROD" -f "$PROD_COMPOSE" $action
       ;;
     *)
-      # Si l'environnement n'est pas reconnu, on affiche l'usage.
       usage
       ;;
   esac
@@ -45,58 +52,75 @@ compose_cmd() {
 
 case "$1" in
   start)
-    # Démarre un environnement spécifique
     env="$2"
     if [ -z "$env" ]; then
       usage
     fi
-    echo "🚀 Démarrage de l'environnement '$env'..."
-    compose_cmd "$env" "up -d --build"
+    echo "🚀 Starting environment '$env'..."
+    cd "$(dirname "$0")" && compose_cmd "$env" "up -d --build"
     ;;
 
   stop)
-    # Arrête un environnement spécifique, ou tous si aucun n'est indiqué
     env="$2"
     if [ -z "$env" ]; then
-      echo "🛑 Arrêt de TOUS les environnements..."
-      compose_cmd dev  "down"
-      compose_cmd int  "down"
-      compose_cmd prod "down"
+      echo "🛑 Stopping ALL environments..."
+      cd "$(dirname "$0")" && compose_cmd dev  "down"
+      cd "$(dirname "$0")" && compose_cmd int  "down"
+      cd "$(dirname "$0")" && compose_cmd prod "down"
     else
-      echo "🛑 Arrêt de l'environnement '$env'..."
-      compose_cmd "$env" "down"
+      echo "🛑 Stopping environment '$env'..."
+      cd "$(dirname "$0")" && compose_cmd "$env" "down"
     fi
     ;;
 
   restart)
-    # Redémarre un environnement
     env="$2"
     if [ -z "$env" ]; then
       usage
     fi
-    echo "🔄 Redémarrage de l'environnement '$env'..."
+    echo "🔄 Restarting environment '$env'..."
     $0 stop   "$env"
     $0 start  "$env"
     ;;
 
   status)
-    # Affiche l'état des conteneurs
-    echo "📌 État des conteneurs Docker :"
+    echo "📌 Docker containers status:"
     docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}"
     ;;
 
   logs)
-    # Affiche les logs d'un environnement, ou tous si aucun n'est indiqué
     env="$2"
     if [ -z "$env" ]; then
-      echo "📜 Logs de TOUS les environnements (ctrl+c pour quitter) :"
-      compose_cmd dev  "logs -f" &
-      compose_cmd int  "logs -f" &
-      compose_cmd prod "logs -f"
+      echo "📜 Logs for ALL environments (ctrl+c to exit):"
+      cd "$(dirname "$0")" && compose_cmd dev  "logs -f" &
+      cd "$(dirname "$0")" && compose_cmd int  "logs -f" &
+      cd "$(dirname "$0")" && compose_cmd prod "logs -f"
     else
-      echo "📜 Logs de l'environnement '$env' (ctrl+c pour quitter) :"
-      compose_cmd "$env" "logs -f"
+      echo "📜 Logs for environment '$env' (ctrl+c to exit):"
+      cd "$(dirname "$0")" && compose_cmd "$env" "logs -f"
     fi
+    ;;
+
+  pull)
+    env="$2"
+    if [ -z "$env" ]; then
+      usage
+    fi
+    echo "📦 Pulling Docker image for '$env'..."
+    case "$env" in
+      dev)
+        docker pull $DOCKER_HUB_USERNAME/nuxt-app:latest
+        ;;
+      int)
+        docker pull $DOCKER_HUB_USERNAME/nuxt-app-integ:latest
+        ;;
+      prod)
+        docker pull $DOCKER_HUB_USERNAME/nuxt-app-prod:latest
+        ;;
+      *)
+        usage
+        ;;
+    esac
     ;;
 
   *)
