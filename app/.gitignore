@@ -1,0 +1,15 @@
+.output/
+.data/
+.nuxt/
+.nitro/
+.cache/
+dist/
+logs/
+node_modules/
+.pnpm-store/
+test-results/
+
+.data
+ 
+.env
+.env.*

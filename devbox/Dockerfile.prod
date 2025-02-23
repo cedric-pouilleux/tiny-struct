@@ -1,0 +1,28 @@
+FROM node:20-slim AS build
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y curl
+
+RUN npm install -g pnpm@10.4.1
+
+COPY ./app/package.json ./app/pnpm-lock.yaml ./
+
+RUN pnpm install --frozen-lockfile --prod
+
+COPY ./app .
+
+RUN pnpm build && \
+    pnpm prune --prod && \
+    rm -rf /root/.cache/pnpm /app/node_modules/.pnpm && \
+    find .output -type f -name "*.map" -delete
+
+FROM gcr.io/distroless/nodejs20:nonroot
+WORKDIR /app 
+
+COPY --from=build /app/.output ./.output
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json .
+
+ENV NODE_ENV=production
+EXPOSE 3000
+CMD [".output/server/index.mjs"]

@@ -1,0 +1,6 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "Running lint and unit tests in app/..."
+cd app
+pnpm typecheck && pnpm lint && pnpm test:unit
