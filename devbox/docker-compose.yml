@@ -34,6 +34,19 @@ services:
       - production
       - integration
 
+  #Staging : playwright testing
+  nuxt-app-staging:
+    build:
+      context: ..
+      dockerfile: devbox/Dockerfile.prod
+    container_name: nuxt_staging
+    ports:
+      - "4100:3000"
+    networks:
+      - app_network
+    profiles:
+      - staging
+
   database:
     image: postgres:15
     container_name: postgres_${ENV}
