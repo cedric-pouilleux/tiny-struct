@@ -20,5 +20,5 @@ jobs:
             docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/nuxt_app:latest
             cd /home/github-ci/devbox
-            docker compose -f docker-compose.int.yml pull
-            docker compose -f docker-compose.int.yml -p integ up -d --force-recreate
+            ./run.sh stop int
+            ./run.sh start int

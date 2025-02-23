@@ -1,1 +1,13 @@
-/env
+db_data_*
+pg_data_*/
+db_data
+
+*.log
+*.tar
+secrets/
+
+env/
+.env*
+.env
+.env.*
+!.env.example

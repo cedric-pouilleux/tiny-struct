@@ -1,0 +1,9 @@
+.output/
+.data/
+.nuxt/
+.nitro/
+.cache/
+dist/
+logs/
+node_modules/
+.pnpm-store/

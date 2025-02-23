@@ -1,0 +1,79 @@
+version: "3.8"
+
+services:
+  #Development
+  nuxt-app-dev:
+    image: nuxt_app_dev
+    build:
+      context: ..
+      dockerfile: devbox/Dockerfile.dev
+    container_name: nuxt_development
+    ports:
+      - "${NUXT_PORT}:3000"
+    volumes:
+      - ../app:/app
+      - /app/node_modules
+    depends_on:
+      - database
+    networks:
+      - app_network
+    profiles:
+      - development
+
+  #Integration and prod
+  nuxt-app:
+    image: ${NUXT_IMAGE:-miomnz/nuxt_app:latest}
+    container_name: nuxt_${ENV}
+    ports:
+      - "${NUXT_PORT}:3000"
+    depends_on:
+      - database
+    networks:
+      - app_network
+    profiles:
+      - production
+      - integration
+
+  database:
+    image: postgres:15
+    container_name: postgres_${ENV}
+    restart: always
+    volumes:
+      - "./db_data_${ENV}:/var/lib/postgresql/data"
+    ports:
+      - "${DB_PORT}:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - development
+      - integration
+      - production
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_${ENV}
+    restart: always
+    ports:
+      - "${NGINX_PORT:-8080}:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - nuxt-app
+    networks:
+      - app_network
+    profiles:
+      - production
+      - integration
+
+networks:
+  app_network:
+    driver: bridge
