@@ -1,27 +1,27 @@
 #!/bin/bash
 
-DEV_COMPOSE="docker-compose.dev.yml"
-INT_COMPOSE="docker-compose.int.yml"
-PROD_COMPOSE="docker-compose.prod.yml"
-PROJECT_DEV="dev"
-PROJECT_INT="int"
-PROJECT_PROD="prod"
+COMPOSE_FILE="docker-compose.yml"
+PROJECT_NAME="nuxt-app"
+ENV_DIR="./env"
+ALL_ENVS=( dev int prod )
 
-if ! command -v docker &> /dev/null
-then
-    echo "❌ Docker is not installed. Please install it first."
-    exit 1
+if ! command -v docker &> /dev/null; then
+  echo -e "\033[31m❌ Docker is not installed. Please install it first.\033[0m"
+  exit 1
 fi
 
-if ! docker compose version &> /dev/null
-then
-    echo "❌ Docker Compose is not installed. Please update Docker."
-    exit 1
+if ! docker compose version &> /dev/null; then
+  echo -e "\033[31m❌ Docker Compose is not installed. Please update Docker.\033[0m"
+  exit 1
 fi
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR"
 
 usage() {
-  echo "Usage: $0 {start|stop|restart|status|logs|pull} [dev|int|prod]"
-  echo "  - start [env]    : Start the specified environment (dev, int, or prod)"
+  echo "Usage: $0 {start|start-all|stop|restart|status|logs|pull} [dev|int|prod]"
+  echo "  - start [env]    : Start the specified environment (dev, int, prod)"
+  echo "  - start-all      : Start all environments (dev, int, prod) in parallel"
   echo "  - stop [env]     : Stop the specified environment (or all if no argument)"
   echo "  - restart [env]  : Restart the specified environment"
   echo "  - status         : Show the status of running containers"
@@ -30,97 +30,100 @@ usage() {
   exit 1
 }
 
-compose_cmd() {
-  local env="$1"
-  local action="$2"
-
-  case "$env" in
-    dev)
-      docker compose -p "$PROJECT_DEV" -f "$DEV_COMPOSE" $action
-      ;;
-    int)
-      docker compose -p "$PROJECT_INT" -f "$INT_COMPOSE" $action
-      ;;
-    prod)
-      docker compose -p "$PROJECT_PROD" -f "$PROD_COMPOSE" $action
-      ;;
-    *)
-      usage
-      ;;
+get_env_file_and_profile() {
+  case "$1" in
+    dev)  ENV_FILE="$ENV_DIR/.env.development";  PROFILE="development"  ;;
+    int)  ENV_FILE="$ENV_DIR/.env.integration";  PROFILE="integration"  ;;
+    prod) ENV_FILE="$ENV_DIR/.env.production";   PROFILE="production"   ;;
+    *) echo -e "\033[31m❌ Invalid environment. Choose 'dev', 'int', or 'prod'.\033[0m"; exit 1 ;;
   esac
 }
 
-case "$1" in
+compose_cmd() {
+  local action="$1"
+  docker compose \
+    --env-file "$ENV_FILE" \
+    --profile "$PROFILE" \
+    -p "$PROJECT_NAME-$PROFILE" \
+    -f "$COMPOSE_FILE" \
+    $action
+}
+
+if [ -z "$1" ]; then
+  echo -e "\033[33m⚠️  No command provided.\033[0m"
+  usage
+fi
+
+COMMAND="$1"
+ENV_ARG="$2"
+
+case "$COMMAND" in
   start)
-    env="$2"
-    if [ -z "$env" ]; then
-      usage
-    fi
-    echo "🚀 Starting environment '$env'..."
-    cd "$(dirname "$0")" && compose_cmd "$env" "up -d --build"
+    if [ -z "$ENV_ARG" ]; then usage; fi
+    get_env_file_and_profile "$ENV_ARG"
+    echo -e "\033[32m🚀 Starting environment '$PROFILE'...\033[0m"
+    compose_cmd "up -d --build"
+    ;;
+  
+  start-all)
+    echo -e "\033[32m🚀 Starting ALL environments (dev, int, prod)...\033[0m"
+    for env in "${ALL_ENVS[@]}"; do
+      get_env_file_and_profile "$env"
+      echo -e "\033[32m➡️  Starting '$PROFILE'...\033[0m"
+      compose_cmd "up -d --build" &
+    done
+    wait
+    echo -e "\033[32m✅ All environments started successfully!\033[0m"
     ;;
 
   stop)
-    env="$2"
-    if [ -z "$env" ]; then
-      echo "🛑 Stopping ALL environments..."
-      cd "$(dirname "$0")" && compose_cmd dev  "down"
-      cd "$(dirname "$0")" && compose_cmd int  "down"
-      cd "$(dirname "$0")" && compose_cmd prod "down"
+    if [ -n "$ENV_ARG" ]; then
+      get_env_file_and_profile "$ENV_ARG"
+      echo -e "\033[31m🛑 Stopping environment '$PROFILE'...\033[0m"
+      compose_cmd "down"
     else
-      echo "🛑 Stopping environment '$env'..."
-      cd "$(dirname "$0")" && compose_cmd "$env" "down"
+      echo -e "\033[31m🛑 Stopping ALL environments...\033[0m"
+      for env in "${ALL_ENVS[@]}"; do
+        get_env_file_and_profile "$env"
+        compose_cmd "down"
+      done
     fi
     ;;
 
   restart)
-    env="$2"
-    if [ -z "$env" ]; then
-      usage
-    fi
-    echo "🔄 Restarting environment '$env'..."
-    $0 stop   "$env"
-    $0 start  "$env"
+    if [ -z "$ENV_ARG" ]; then usage; fi
+    get_env_file_and_profile "$ENV_ARG"
+    echo -e "\033[33m🔄 Restarting environment '$PROFILE'...\033[0m"
+    # On appelle le script lui-même pour stop + start
+    "$0" stop  "$ENV_ARG"
+    "$0" start "$ENV_ARG"
     ;;
 
   status)
-    echo "📌 Docker containers status:"
+    echo -e "\033[34m📌 Docker containers status:\033[0m"
     docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}"
     ;;
 
   logs)
-    env="$2"
-    if [ -z "$env" ]; then
-      echo "📜 Logs for ALL environments (ctrl+c to exit):"
-      cd "$(dirname "$0")" && compose_cmd dev  "logs -f" &
-      cd "$(dirname "$0")" && compose_cmd int  "logs -f" &
-      cd "$(dirname "$0")" && compose_cmd prod "logs -f"
+    if [ -n "$ENV_ARG" ]; then
+      get_env_file_and_profile "$ENV_ARG"
+      echo -e "\033[35m📜 Logs for environment '$PROFILE' (ctrl+c to exit):\033[0m"
+      compose_cmd "logs -f"
     else
-      echo "📜 Logs for environment '$env' (ctrl+c to exit):"
-      cd "$(dirname "$0")" && compose_cmd "$env" "logs -f"
+      echo -e "\033[35m📜 Logs for ALL environments (ctrl+c to exit):\033[0m"
+      for env in "${ALL_ENVS[@]}"; do
+        get_env_file_and_profile "$env"
+        compose_cmd "logs -f" &
+      done
+      wait
     fi
     ;;
 
   pull)
-    env="$2"
-    if [ -z "$env" ]; then
-      usage
-    fi
-    echo "📦 Pulling Docker image for '$env'..."
-    case "$env" in
-      dev)
-        docker pull $DOCKER_HUB_USERNAME/nuxt-app:latest
-        ;;
-      int)
-        docker pull $DOCKER_HUB_USERNAME/nuxt-app-integ:latest
-        ;;
-      prod)
-        docker pull $DOCKER_HUB_USERNAME/nuxt-app-prod:latest
-        ;;
-      *)
-        usage
-        ;;
-    esac
+    if [ -z "$ENV_ARG" ]; then usage; fi
+    get_env_file_and_profile "$ENV_ARG"
+    echo -e "\033[36m📦 Pulling Docker image for '$PROFILE'...\033[0m"
+    docker pull "$DOCKER_HUB_USERNAME/nuxt-app-$PROFILE:latest"
     ;;
 
   *)
