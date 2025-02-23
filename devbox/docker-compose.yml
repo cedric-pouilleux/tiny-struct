@@ -47,6 +47,19 @@ services:
     profiles:
       - staging
 
+  e2e-tests:
+    build:
+      context: ..
+      dockerfile: devbox/Dockerfile.e2e
+    container_name: e2e_tests
+    # depends_on:
+    #   - nuxt-app-staging
+    networks:
+      - app_network
+    environment:
+      - BASE_URL=http://nuxt-app-staging:3000
+    command: ["pnpm", "test:e2e"]
+
   database:
     image: postgres:15
     container_name: postgres_${ENV}

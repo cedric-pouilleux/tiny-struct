@@ -12,71 +12,38 @@ jobs:
       - name: 📥 Checkout repository
         uses: actions/checkout@v3
 
-      - name: 🔑 Connect to Staging VM
+      - name: 🔑 Connect to Staging VM & Run Tests
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
-            # Définition du chemin staging
-            STAGING_DIR="/home/github-ci/staging"
+            cd /home/github-ci/tiny-struct/
 
-            # Vérifier si le dossier existe, sinon le créer
-            if [ ! -d "$STAGING_DIR" ]; then
-                echo "📁 Creating staging directory..."
-                mkdir -p "$STAGING_DIR"
-            fi
+            git fetch --all
+            git reset --hard origin/main
+            git pull origin main --ff-only
 
-            cd "$STAGING_DIR" 
-
-            # Vérifier si le repo est présent, sinon cloner
-            if [ ! -d ".git" ]; then
-                echo "🔄 Cloning repository in staging directory..."
-                git clone https://github.com/cedric-pouilleux/tiny-struct.git .
-            else
-                echo "🔄 Resetting local changes and pulling latest changes..."
-                git reset --hard origin/main  # 🔥 Force l'alignement avec main
-                git fetch --all  # 🔄 Récupère les dernières modifications
-                git pull origin main --force  # 🔄 Force la mise à jour sans conflit
-            fi
-            docker compose --env-file /home/github-ci/devbox/env/.env.integration --profile staging build nuxt-app-staging
-            docker compose --env-file /home/github-ci/devbox/env/.env.integration --profile staging up -d --build
+            cd /home/github-ci/tiny-struct/devbox
+            docker compose --env-file ./env/.env.integration --profile staging up -d --build
 
   e2e-tests:
     runs-on: ubuntu-latest
     needs: deploy-staging
-    if: success()
     steps:
-      - name: 📥 Checkout repository
-        uses: actions/checkout@v3
-
-      - name: 🛠️ Set up Node.js
-        uses: actions/setup-node@v3
+      - name: 🔑 Connect to Staging VM & Run Playwright tests
+        uses: appleboy/ssh-action@v0.1.10
         with:
-          node-version: 18
-          cache: "pnpm"
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            cd /home/github-ci/tiny-struct/devbox
 
-      - name: 📦 Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-          run_install: true
+            echo "🚀 Starting Playwright E2E tests on VM..."
 
-      - name: 🌍 Install Playwright browsers
-        run: pnpm playwright install --with-deps
+            docker compose up --abort-on-container-exit e2e-tests
 
-      - name: 🕵️ Run Playwright tests on staging
-        run: pnpm test:e2e
-        env:
-          BASE_URL: "https://localhost:4100"
-
-  trigger-build:
-    runs-on: ubuntu-latest
-    needs: e2e-tests
-    if: success()
-    steps:
-      - name: ✅ Trigger build.yml
-        uses: benc-uk/workflow-dispatch@v1
-        with:
-          workflow: "Build & Push Docker Image"
+            echo "✅ Tests completed. Cleaning up..."
+            docker compose down

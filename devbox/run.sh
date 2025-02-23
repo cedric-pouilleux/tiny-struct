@@ -3,7 +3,7 @@
 COMPOSE_FILE="docker-compose.yml"
 PROJECT_NAME="nuxt-app"
 ENV_DIR="./env"
-ALL_ENVS=( dev int prod )
+ALL_ENVS=( dev int prod staging )  # 🔥 Ajout de staging
 
 if ! command -v docker &> /dev/null; then
   echo -e "\033[31m❌ Docker is not installed. Please install it first.\033[0m"
@@ -19,8 +19,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
 usage() {
-  echo "Usage: $0 {start|start-all|stop|restart|status|logs|pull} [dev|int|prod]"
-  echo "  - start [env]    : Start the specified environment (dev, int, prod)"
+  echo "Usage: $0 {start|start-all|stop|restart|status|logs|pull} [dev|int|prod|staging]"
+  echo "  - start [env]    : Start the specified environment (dev, int, prod, staging)"
   echo "  - start-all      : Start all environments (dev, int, prod) in parallel"
   echo "  - stop [env]     : Stop the specified environment (or all if no argument)"
   echo "  - restart [env]  : Restart the specified environment"
@@ -32,10 +32,11 @@ usage() {
 
 get_env_file_and_profile() {
   case "$1" in
-    dev)  ENV_FILE="$ENV_DIR/.env.development";  PROFILE="development"  ;;
-    int)  ENV_FILE="$ENV_DIR/.env.integration";  PROFILE="integration"  ;;
-    prod) ENV_FILE="$ENV_DIR/.env.production";   PROFILE="production"   ;;
-    *) echo -e "\033[31m❌ Invalid environment. Choose 'dev', 'int', or 'prod'.\033[0m"; exit 1 ;;
+    dev)     ENV_FILE="$ENV_DIR/.env.development";  PROFILE="development"  ;;
+    int)     ENV_FILE="$ENV_DIR/.env.integration";  PROFILE="integration"  ;;
+    prod)    ENV_FILE="$ENV_DIR/.env.production";   PROFILE="production"   ;;
+    staging) ENV_FILE="$ENV_DIR/.env.integration";  PROFILE="staging"      ;;  # 🔥 Staging utilise .env.integration
+    *) echo -e "\033[31m❌ Invalid environment. Choose 'dev', 'int', 'prod', or 'staging'.\033[0m"; exit 1 ;;
   esac
 }
 
@@ -62,15 +63,15 @@ case "$COMMAND" in
     if [ -z "$ENV_ARG" ]; then usage; fi
     get_env_file_and_profile "$ENV_ARG"
     echo -e "\033[32m🚀 Starting environment '$PROFILE'...\033[0m"
-    compose_cmd "up -d --build"
+    compose_cmd "up -d --build --force-recreate"
     ;;
   
   start-all)
-    echo -e "\033[32m🚀 Starting ALL environments (dev, int, prod)...\033[0m"
+    echo -e "\033[32m🚀 Starting ALL environments (dev, int, prod, staging)...\033[0m"
     for env in "${ALL_ENVS[@]}"; do
       get_env_file_and_profile "$env"
       echo -e "\033[32m➡️  Starting '$PROFILE'...\033[0m"
-      compose_cmd "up -d --build" &
+      compose_cmd "up -d --build --force-recreate" &
     done
     wait
     echo -e "\033[32m✅ All environments started successfully!\033[0m"
@@ -94,7 +95,6 @@ case "$COMMAND" in
     if [ -z "$ENV_ARG" ]; then usage; fi
     get_env_file_and_profile "$ENV_ARG"
     echo -e "\033[33m🔄 Restarting environment '$PROFILE'...\033[0m"
-    # On appelle le script lui-même pour stop + start
     "$0" stop  "$ENV_ARG"
     "$0" start "$ENV_ARG"
     ;;
