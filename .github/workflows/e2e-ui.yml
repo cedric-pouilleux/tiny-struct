@@ -5,13 +5,6 @@ on:
     branches:
       - main
 
-name: Build, test and deploy integration
-
-on:
-  push:
-    branches:
-      - main
-
 jobs:
   build-staging:
     runs-on: ubuntu-latest
