@@ -36,6 +36,7 @@ services:
 
   #Staging : playwright testing
   nuxt-app-staging:
+    image: nuxt-app-staging
     build:
       context: ..
       dockerfile: devbox/Dockerfile.prod
@@ -48,17 +49,21 @@ services:
       - staging
 
   e2e-tests:
-    build:
-      context: ..
-      dockerfile: devbox/Dockerfile.e2e
+    image: mcr.microsoft.com/playwright:v1.50.0-noble
     container_name: e2e_tests
-    # depends_on:
-    #   - nuxt-app-staging
+    depends_on:
+      - nuxt-app-staging
     networks:
       - app_network
     environment:
       - BASE_URL=http://nuxt-app-staging:3000
-    command: ["pnpm", "test:e2e"]
+    volumes:
+      - ../app:/app
+    working_dir: /app
+    command:
+      ["/bin/sh", "-c", "npm install -g pnpm && pnpm install && pnpm test:e2e"]
+    profiles:
+      - e2e
 
   database:
     image: postgres:15

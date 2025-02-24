@@ -20,13 +20,12 @@ jobs:
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
             cd /home/github-ci/tiny-struct/
-
             git fetch --all
             git reset --hard origin/main
             git pull origin main --ff-only
 
             cd /home/github-ci/tiny-struct/devbox
-            docker compose --env-file ./env/.env.integration --profile staging up -d --build
+            docker compose build nuxt-app-staging
 
   e2e-tests:
     runs-on: ubuntu-latest
@@ -40,10 +39,6 @@ jobs:
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
             cd /home/github-ci/tiny-struct/devbox
-
-            echo "🚀 Starting Playwright E2E tests on VM..."
-
-            docker compose up --abort-on-container-exit e2e-tests
-
-            echo "✅ Tests completed. Cleaning up..."
-            docker compose down
+            echo "🚀 Running Playwright tests..."
+            docker compose up --abort-on-container-exit nuxt-app-staging e2e-tests
+            echo "✅ Tests completed."
