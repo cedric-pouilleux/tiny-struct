@@ -1,4 +1,4 @@
-name: E2E UI Tests
+name: Build, test and deploy integration
 
 on:
   push:
@@ -38,7 +38,7 @@ jobs:
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
+            set -e  # Arrête immédiatement si une commande échoue
             cd /home/github-ci/tiny-struct/devbox
-            echo "🚀 Running Playwright tests..."
-            docker compose up --abort-on-container-exit nuxt-app-staging e2e-tests
-            echo "✅ Tests completed."
+            echo "Running Playwright tests..."
+            docker compose up --abort-on-container-exit nuxt-app-staging e2e-tests || exit 1
