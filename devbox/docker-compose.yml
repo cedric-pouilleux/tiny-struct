@@ -55,7 +55,8 @@ services:
   playwright:
     image: mcr.microsoft.com/playwright:v1.50.0-noble
     depends_on:
-      - nuxt-app-staging
+      nuxt-app-staging:
+        condition: service_healthy
     networks:
       - app_network
     working_dir: /app

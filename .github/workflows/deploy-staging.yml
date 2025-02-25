@@ -35,12 +35,6 @@ jobs:
         run: |
           cd devbox
           docker compose up -d nuxt-app-staging
-          echo "Waiting for Nuxt to be ready..." 
-          for i in {1..10}; do
-            curl -s -o /dev/null http://localhost:3200 && break
-            echo "Nuxt is not ready yet... retrying in 5s"
-            sleep 5
-          done
 
   e2e-tests:
     runs-on: ubuntu-latest
