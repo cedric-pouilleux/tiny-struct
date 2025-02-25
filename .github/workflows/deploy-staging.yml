@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: build-nuxt
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -50,42 +57,19 @@ jobs:
           cd devbox
           docker compose run --rm playwright pnpm test:e2e
 
-      - name: Save Docker Image
-        run: |
-          docker save -o nuxt_app.tar nuxt-app-staging:latest
-
-      - name: Upload Docker Image
-        uses: actions/upload-artifact@v4
-        with:
-          name: nuxt_app_image
-          path: nuxt_app.tar
-
-  push-to-docker-hub:
-    runs-on: ubuntu-latest
-    needs: e2e-tests
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Download Docker Image
-        uses: actions/download-artifact@v4
-        with:
-          name: nuxt_app_image
-
-      - name: Load Docker Image
-        run: docker load -i nuxt_app.tar
-
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
       - name: Tag and Push Image to Docker Hub
         run: |
           docker tag nuxt-app-staging ${{ secrets.DOCKER_HUB_USERNAME }}/nuxt_app:latest
+          docker tag nuxt-app-staging ${{ secrets.DOCKER_HUB_USERNAME }}/nuxt_app:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nuxt_app:latest
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nuxt_app:${{ github.sha }}
 
   deploy-int:
     runs-on: ubuntu-latest
-    needs: push-to-docker-hub
+    needs: e2e-tests
     steps:
       - name: Deploy to Integration VM
         uses: appleboy/ssh-action@v0.1.10
