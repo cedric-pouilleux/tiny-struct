@@ -1,7 +1,15 @@
 import { describe, it, expect } from "vitest";
+import { mount, shallowMount } from "@vue/test-utils";
+import Test from "./Test.vue";
 
 describe("Test init", () => {
   it("should success", () => {
-    expect(1 + 1).toBe(3);
+    const wrapper = mount(Test, {
+      props: {
+        title: "Mino",
+      },
+    });
+    const title = wrapper.find('[data-testid="title"]');
+    expect(title.text()).toBe("Mino");
   });
 });
