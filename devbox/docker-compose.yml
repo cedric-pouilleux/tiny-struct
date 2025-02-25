@@ -45,11 +45,6 @@ services:
       - "3200:3000"
     networks:
       - app_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-      interval: 5s
-      retries: 10
-      start_period: 10s
 
   #Playwright e2e test
   playwright:

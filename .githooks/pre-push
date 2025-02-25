@@ -1,32 +1,40 @@
 #!/bin/bash
 
-echo "🔍 Running tests before push..."
+echo "🔍 Exécution des vérifications avant le push..."
 
 PROJECT_DIR="/home/mino/dev/tiny-struct/app"
 
 if [ ! -f "$PROJECT_DIR/package.json" ]; then
-    echo "❌ No package.json found in $PROJECT_DIR. Check your project structure!"
+    echo "❌ Aucun fichier package.json trouvé dans $PROJECT_DIR. Vérifiez la structure de votre projet !"
     exit 1
 fi
 
 cd "$PROJECT_DIR" || exit
 
 if ! command -v pnpm &> /dev/null; then
-    echo "❌ pnpm is not installed. Install it first!"
+    echo "❌ pnpm n'est pas installé. Veuillez l'installer d'abord !"
     exit 1
 fi
 
 if [ ! -d "node_modules" ]; then
-    echo "📦 Installing dependencies..."
+    echo "📦 Installation des dépendances..."
     pnpm install
 fi
 
-echo "🧪 Running tests..."
-pnpm test:unit --run
+echo "🧪 Vérification des types TypeScript..."
+pnpm vue-tsc --noEmit
 
 if [ $? -ne 0 ]; then
-    echo "❌ Tests failed! Push aborted."
+    echo "❌ La vérification des types a échoué ! Push annulé."
     exit 1
 fi
 
-echo "✅ Tests passed! Proceeding with push..."
+echo "🧪 Exécution des tests unitaires..."
+pnpm test:unit --run
+
+if [ $? -ne 0 ]; then
+    echo "❌ Les tests unitaires ont échoué ! Push annulé."
+    exit 1
+fi
+
+echo "✅ Toutes les vérifications sont réussies ! Poursuite du push..."
