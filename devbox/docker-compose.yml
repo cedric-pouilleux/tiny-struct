@@ -46,7 +46,7 @@ services:
     networks:
       - app_network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3200"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 5s
       retries: 10
       start_period: 10s
@@ -55,8 +55,7 @@ services:
   playwright:
     image: mcr.microsoft.com/playwright:v1.50.0-noble
     depends_on:
-      nuxt-app-staging:
-        condition: service_healthy
+      - nuxt-app-staging
     networks:
       - app_network
     working_dir: /app

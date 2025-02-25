@@ -1,0 +1,35 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-staging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Nuxt App (Staging)
+        run: |
+          cd devbox
+          docker compose build nuxt-app-staging
+
+      - name: 🚀 Start Nuxt App (Docker)
+        run: |
+          cd devbox
+          docker compose up -d nuxt-app-staging
+
+      - name: Start Playwright tests
+        run: |
+          cd devbox
+          docker compose run --rm playwright pnpm test:e2e
+
+      - name: Cleanup
+        if: always()
+        run: docker compose down -v
