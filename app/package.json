@@ -7,7 +7,7 @@
     "lint:fix": "eslint . --config eslint.config.ts --ext .js,.ts,.vue --fix",
     "typecheck": "vue-tsc --noEmit",
     "test:e2e": "playwright test",
-    "test:unit": "vitest",
+    "test:unit": "vitest run",
     "coverage": "vitest run --coverage",
     "build": "nuxt build",
     "dev": "nuxt dev",
