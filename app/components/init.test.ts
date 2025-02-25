@@ -10,6 +10,6 @@ describe('Test init', () => {
       }
     })
     const title = wrapper.find('[data-testid="title"]')
-    expect(title.text()).toBe('Mino')
+    expect(title.text()).toBe('Minoz')
   })
 })
