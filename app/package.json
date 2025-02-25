@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "lint": "eslint . --config eslint.config.ts --ext .js,.ts,.vue",
-    "lint:fix": "eslint . --config eslint.config.ts --ext .js,.ts,.vue --fix", 
+    "lint:fix": "eslint . --config eslint.config.ts --ext .js,.ts,.vue --fix",
     "typecheck": "vue-tsc --noEmit",
     "test:e2e": "playwright test",
     "test:unit": "vitest",
@@ -23,8 +23,10 @@
   "packageManager": "pnpm@10.4.1+sha512.c753b6c3ad7afa13af388fa6d808035a008e30ea9993f58c6663e2bc5ff21679aa834db094987129aa4d488b86df57f7b634981b2f827cdcacc698cc0cfb88af",
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.0",
+    "@eslint/js": "^9.21.0",
     "@playwright/test": "^1.50.1",
     "@types/eslint": "^9.6.1",
+    "@types/eslint-config-prettier": "^6.11.3",
     "@typescript-eslint/parser": "^8.25.0",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vitest/coverage-istanbul": "^3.0.6",
@@ -38,6 +40,7 @@
     "jsdom": "^26.0.0",
     "prettier": "^3.5.2",
     "typescript": "^5.7.3",
+    "typescript-eslint": "^8.25.0",
     "vitest": "^3.0.6",
     "vue-eslint-parser": "^9.4.3",
     "vue-tsc": "^2.2.4"

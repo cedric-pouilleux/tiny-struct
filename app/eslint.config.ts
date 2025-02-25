@@ -1,12 +1,12 @@
-import { FlatConfig } from '@eslint/eslintrc'
+import vueParser from 'vue-eslint-parser'
+import tsParser from '@typescript-eslint/parser'
 import eslintPluginVue from 'eslint-plugin-vue'
 import eslintPluginPrettier from 'eslint-plugin-prettier'
 import eslintConfigPrettier from 'eslint-config-prettier'
 import eslintPluginNuxt from 'eslint-plugin-nuxt'
-import tsParser from '@typescript-eslint/parser'
-import vueParser from 'vue-eslint-parser'
+import tsEslint from 'typescript-eslint'
 
-const config: FlatConfig[] = [
+export default tsEslint.config(
   {
     files: ['**/*.vue'],
     languageOptions: {
@@ -39,6 +39,4 @@ const config: FlatConfig[] = [
     },
     rules: {}
   }
-]
-
-export default config
+)
