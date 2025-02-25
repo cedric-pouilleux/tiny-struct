@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { mount, shallowMount } from "@vue/test-utils";
+import { mount } from "@vue/test-utils";
 import Test from "./Test.vue";
 
 describe("Test init", () => {

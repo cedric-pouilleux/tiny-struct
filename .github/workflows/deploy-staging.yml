@@ -81,7 +81,7 @@ jobs:
       - name: Tag and Push Image to Docker Hub
         run: |
           docker tag nuxt-app-staging ${{ secrets.DOCKER_HUB_USERNAME }}/nuxt_app:latest
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nuxt_app:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nuxt_app:${{ github.sha }}
 
   deploy-int:
     runs-on: ubuntu-latest
