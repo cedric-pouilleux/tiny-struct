@@ -48,9 +48,12 @@ jobs:
       - name: Install pnpm manually
         run: npm install -g pnpm
 
-      - name: Install dependencies
+      - name: Fetch only required dependencies
         working-directory: app
-        run: pnpm install --frozen-lockfile
+        run: pnpm fetch --frozen-lockfile
+
+      - name: Install minimal dependencies
+        run: cd app && pnpm install --offline
 
       - name: 🔎 Run ESLint
         working-directory: app
