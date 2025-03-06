@@ -8,3 +8,8 @@ logs/
 node_modules/
 .pnpm-store/
 test-results/
+
+
+ 
+.env
+.env.*

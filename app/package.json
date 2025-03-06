@@ -17,7 +17,12 @@
     "start": "nuxt start"
   },
   "dependencies": {
+    "@nuxt/icon": "1.10.3",
+    "@nuxt/image": "1.9.0",
+    "@pinia/nuxt": "0.10.1",
     "nuxt": "^3.15.4",
+    "nuxt-auth-utils": "0.5.16",
+    "pinia": "^3.0.1",
     "vue": "latest",
     "vue-router": "latest"
   },
@@ -40,6 +45,7 @@
     "eslint-plugin-vue": "^9.32.0",
     "jsdom": "^26.0.0",
     "prettier": "^3.5.2",
+    "sass": "^1.85.1",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.25.0",
     "vitest": "^3.0.6",
