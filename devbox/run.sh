@@ -19,14 +19,14 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
 usage() {
-  echo "Usage: $0 {start|start-all|stop|restart|status|logs|pull} [dev|int|prod|staging]"
-  echo "  - start [env]    : Start the specified environment (dev, int, prod, staging)"
-  echo "  - start-all      : Start all environments (dev, int, prod) in parallel"
-  echo "  - stop [env]     : Stop the specified environment (or all if no argument)"
-  echo "  - restart [env]  : Restart the specified environment"
-  echo "  - status         : Show the status of running containers"
-  echo "  - logs [env]     : Display logs for the specified environment (or all if no argument)"
-  echo "  - pull [env]     : Pull the latest Docker image from Docker Hub"
+  echo "Usage: $0 {start|start-all|stop|restart|status|logs|pull} [dev|int|prod|staging] [--no-daemon]"
+  echo "  - start [env] [--no-daemon]  : Start the specified environment with or without daemon mode"
+  echo "  - start-all [--no-daemon]     : Start all environments in parallel"
+  echo "  - stop [env]                  : Stop the specified environment (or all if no argument)"
+  echo "  - restart [env]               : Restart the specified environment"
+  echo "  - status                      : Show the status of running containers"
+  echo "  - logs [env]                  : Display logs for the specified environment (or all if no argument)"
+  echo "  - pull [env]                  : Pull the latest Docker image from Docker Hub"
   exit 1
 }
 
@@ -57,13 +57,23 @@ fi
 
 COMMAND="$1"
 ENV_ARG="$2"
+NO_DAEMON=false
+
+# Vérification de l'option --no-daemon
+if [[ "$3" == "--no-daemon" ]]; then
+  NO_DAEMON=true
+fi
 
 case "$COMMAND" in
   start)
     if [ -z "$ENV_ARG" ]; then usage; fi
     get_env_file_and_profile "$ENV_ARG"
     echo -e "\033[32m🚀 Starting environment '$PROFILE'...\033[0m"
-    compose_cmd "up -d --build --force-recreate"
+    if [ "$NO_DAEMON" = true ]; then
+      compose_cmd "up --build --force-recreate"
+    else
+      compose_cmd "up -d --build --force-recreate"
+    fi
     ;;
   
   start-all)
@@ -71,7 +81,11 @@ case "$COMMAND" in
     for env in "${ALL_ENVS[@]}"; do
       get_env_file_and_profile "$env"
       echo -e "\033[32m➡️  Starting '$PROFILE'...\033[0m"
-      compose_cmd "up -d --build --force-recreate" &
+      if [ "$NO_DAEMON" = true ]; then
+        compose_cmd "up --build --force-recreate" &
+      else
+        compose_cmd "up -d --build --force-recreate" &
+      fi
     done
     wait
     echo -e "\033[32m✅ All environments started successfully!\033[0m"
@@ -96,7 +110,7 @@ case "$COMMAND" in
     get_env_file_and_profile "$ENV_ARG"
     echo -e "\033[33m🔄 Restarting environment '$PROFILE'...\033[0m"
     "$0" stop  "$ENV_ARG"
-    "$0" start "$ENV_ARG"
+    "$0" start "$ENV_ARG" "$([[ "$NO_DAEMON" = true ]] && echo "--no-daemon")"
     ;;
 
   status)

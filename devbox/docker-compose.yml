@@ -45,6 +45,8 @@ services:
       - "3200:3000"
     networks:
       - app_network
+    profiles:
+      - integration
 
   #Playwright e2e test
   playwright:
@@ -58,6 +60,8 @@ services:
       - BASE_URL=http://nuxt-app-staging:3000
     volumes:
       - ../app:/app
+    profiles:
+      - integration
     entrypoint:
       [
         "/bin/sh",
