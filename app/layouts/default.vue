@@ -2,7 +2,7 @@
   <header>
     <div class="inner">
       <div class="logotype">
-        <h1>
+        <h1 data-testid="main-title">
           <NuxtLink to="/">Tiny struct</NuxtLink>
         </h1>
       </div>
