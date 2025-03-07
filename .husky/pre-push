@@ -3,4 +3,4 @@
 
 echo "Running lint and unit tests in app/..."
 cd app
-pnpm lint && pnpm test:unit
+pnpm typecheck && pnpm lint && pnpm test:unit

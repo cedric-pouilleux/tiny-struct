@@ -1,5 +1,4 @@
 <template>
-  <h1>Tiny Struct</h1>
   <div v-if="loggedIn">
     <div class="account">
       <div class="avatar">
@@ -25,6 +24,10 @@
 
 <script setup>
 const { loggedIn, user, openInPopup, clear } = useUserSession()
+
+definePageMeta({
+  layout: 'default'
+})
 </script>
 
 <style lang="scss">
