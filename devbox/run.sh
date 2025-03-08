@@ -3,7 +3,7 @@
 COMPOSE_FILE="docker-compose.yml"
 PROJECT_NAME="nuxt-app"
 ENV_DIR="./env"
-ALL_ENVS=( dev int prod staging )  # 🔥 Ajout de staging
+ALL_ENVS=( dev int prod staging )
 
 if ! command -v docker &> /dev/null; then
   echo -e "\033[31m❌ Docker is not installed. Please install it first.\033[0m"
@@ -35,7 +35,7 @@ get_env_file_and_profile() {
     dev)     ENV_FILE="$ENV_DIR/.env.development";  PROFILE="development"  ;;
     int)     ENV_FILE="$ENV_DIR/.env.integration";  PROFILE="integration"  ;;
     prod)    ENV_FILE="$ENV_DIR/.env.production";   PROFILE="production"   ;;
-    staging) ENV_FILE="$ENV_DIR/.env.integration";  PROFILE="staging"      ;;  # 🔥 Staging utilise .env.integration
+    staging) ENV_FILE="$ENV_DIR/.env.integration";  PROFILE="staging"      ;;
     *) echo -e "\033[31m❌ Invalid environment. Choose 'dev', 'int', 'prod', or 'staging'.\033[0m"; exit 1 ;;
   esac
 }
@@ -59,9 +59,8 @@ COMMAND="$1"
 ENV_ARG="$2"
 NO_DAEMON=false
 
-# Vérification de l'option --no-daemon
 if [[ "$3" == "--no-daemon" ]]; then
-  NO_DAEMON=true
+  NO_DAEMON=true 
 fi
 
 case "$COMMAND" in
