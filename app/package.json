@@ -14,15 +14,18 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "start": "nuxt start"
+    "start": "nuxt start",
+    "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
     "@nuxt/fonts": "0.10.3",
     "@nuxt/icon": "1.10.3",
     "@nuxt/image": "1.9.0",
     "@pinia/nuxt": "0.10.1",
+    "drizzle-orm": "^0.40.0",
     "nuxt": "^3.15.4",
     "nuxt-auth-utils": "0.5.16",
+    "pg": "^8.13.3",
     "pinia": "^3.0.1",
     "vue": "latest",
     "vue-router": "latest"
@@ -34,11 +37,13 @@
     "@playwright/test": "^1.50.1",
     "@types/eslint": "^9.6.1",
     "@types/eslint-config-prettier": "^6.11.3",
+    "@types/pg": "^8.11.11",
     "@typescript-eslint/parser": "^8.25.0",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vitest/coverage-istanbul": "^3.0.6",
     "@vitest/ui": "^3.0.6",
     "@vue/test-utils": "^2.4.6",
+    "drizzle-kit": "^0.30.5",
     "eslint": "^9.21.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-nuxt": "^4.0.0",
