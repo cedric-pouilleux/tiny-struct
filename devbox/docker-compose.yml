@@ -30,8 +30,15 @@ services:
       - "${NUXT_PORT}:3000"
     depends_on:
       - database
-    volumes:
-      - ./env/.env.production:/app/.env
+    environment:
+      - ENV=production
+      - DB_PORT=5432
+      - NUXT_PORT=${NUXT_PORT}
+      - DATABASE_URL=${DATABASE_URL}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_SSL=false
     networks:
       - app_network
     profiles:

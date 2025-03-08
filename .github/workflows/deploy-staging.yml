@@ -144,6 +144,6 @@ jobs:
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/nuxt_app:latest
             cd /home/github-ci/tiny-struct/devbox
             ./run.sh stop prod
-            ./run.sh start prod
+            ./run.sh start prod 
             docker image prune -f
             docker logout
