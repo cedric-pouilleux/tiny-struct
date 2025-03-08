@@ -27,10 +27,10 @@
           v-if="loggedIn && user"
           :avatar="user.picture"
           :name="user.name"
-          @unlog="clear"
+          @unlog="userStore.clear"
         />
         <template v-else>
-          <button class="nav-button" @click="openInPopup('/api/auth/google')">
+          <button class="nav-button" @click="userStore.openInPopup('/api/auth/google')">
             <Icon name="uil:google" size="18px" />
             <span>Login</span>
           </button>
@@ -54,13 +54,13 @@
 import LoginItem from '../components/LoginItem.vue'
 
 const userStore = useUserStore()
-const { loggedIn, user, openInPopup, clear, registerUser } = userStore
+const { loggedIn, user } = storeToRefs(userStore)
 
 watch(
   () => user,
   () => {
     if (loggedIn) {
-      registerUser()
+      userStore.registerUser()
     }
   }
 )

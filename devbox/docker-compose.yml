@@ -13,10 +13,12 @@ services:
     volumes:
       - ../app:/app
       - /app/node_modules
+      - ./env/.env.development:/app/.env
     depends_on:
       - database
     networks:
       - app_network
+    entrypoint: ["/bin/sh", "-c", "pnpm drizzle-kit push && pnpm dev"]
     profiles:
       - development
 
@@ -28,6 +30,8 @@ services:
       - "${NUXT_PORT}:3000"
     depends_on:
       - database
+    volumes:
+      - ./env/.env.production:/app/.env
     networks:
       - app_network
     profiles:
@@ -88,10 +92,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    profiles:
-      - development
-      - integration
-      - production
 
   nginx:
     image: nginx:latest
