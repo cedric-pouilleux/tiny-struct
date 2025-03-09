@@ -47,7 +47,7 @@ services:
       dockerfile: devbox/Dockerfile.prod
     container_name: nuxt_staging
     ports:
-      - "3200:3000"
+      - "3600:3000"
     networks:
       - app_network
     profiles:
