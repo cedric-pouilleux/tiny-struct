@@ -56,14 +56,11 @@ import LoginItem from '../components/LoginItem.vue'
 const userStore = useUserStore()
 const { loggedIn, user } = storeToRefs(userStore)
 
-watch(
-  () => user,
-  () => {
-    if (loggedIn) {
-      userStore.registerUser()
-    }
+watch(user, () => {
+  if (loggedIn) {
+    userStore.registerUser()
   }
-)
+})
 </script>
 
 <style lang="scss" scoped>

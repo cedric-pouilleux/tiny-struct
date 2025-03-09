@@ -29,16 +29,10 @@ services:
     ports:
       - "${NUXT_PORT}:3000"
     depends_on:
-      - database
-    environment:
-      - ENV=production
-      - DB_PORT=5432
-      - NUXT_PORT=${NUXT_PORT}
-      - DATABASE_URL=${DATABASE_URL}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - DB_SSL=false
+      database:
+        condition: service_healthy
+    env_file:
+      - ./env/.env.production
     networks:
       - app_network
     profiles:
@@ -85,7 +79,7 @@ services:
     container_name: postgres_${ENV}
     restart: always
     volumes:
-      - "./db_data_${ENV}:/var/lib/postgresql/data"
+      - "pg_data_${ENV}:/var/lib/postgresql/data"
     ports:
       - "${DB_PORT}:5432"
     environment:
@@ -99,6 +93,19 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  migrate:
+    build:
+      context: ..
+      dockerfile: devbox/Dockerfile.migrate
+    restart: "no"
+    depends_on:
+      database:
+        condition: service_started
+    networks:
+      - app_network
+    env_file:
+      - ./env/.env.production
 
   nginx:
     image: nginx:latest
@@ -119,3 +126,8 @@ services:
 networks:
   app_network:
     driver: bridge
+
+volumes:
+  pg_data_production:
+  pg_data_development:
+  pg_data_integration:

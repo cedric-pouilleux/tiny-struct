@@ -20,13 +20,6 @@ cd "$SCRIPT_DIR"
 
 usage() {
   echo "Usage: $0 {start|start-all|stop|restart|status|logs|pull} [dev|int|prod|staging] [--no-daemon]"
-  echo "  - start [env] [--no-daemon]  : Start the specified environment with or without daemon mode"
-  echo "  - start-all [--no-daemon]     : Start all environments in parallel"
-  echo "  - stop [env]                  : Stop the specified environment (or all if no argument)"
-  echo "  - restart [env]               : Restart the specified environment"
-  echo "  - status                      : Show the status of running containers"
-  echo "  - logs [env]                  : Display logs for the specified environment (or all if no argument)"
-  echo "  - pull [env]                  : Pull the latest Docker image from Docker Hub"
   exit 1
 }
 
@@ -68,10 +61,11 @@ case "$COMMAND" in
     if [ -z "$ENV_ARG" ]; then usage; fi
     get_env_file_and_profile "$ENV_ARG"
     echo -e "\033[32m🚀 Starting environment '$PROFILE'...\033[0m"
+
     if [ "$NO_DAEMON" = true ]; then
-      compose_cmd "up --build --force-recreate"
+      docker compose --env-file "$ENV_FILE" --profile "$PROFILE" up --build --force-recreate
     else
-      compose_cmd "up -d --build --force-recreate"
+      docker compose --env-file "$ENV_FILE" --profile "$PROFILE" up -d --build --force-recreate
     fi
     ;;
   
@@ -94,14 +88,23 @@ case "$COMMAND" in
     if [ -n "$ENV_ARG" ]; then
       get_env_file_and_profile "$ENV_ARG"
       echo -e "\033[31m🛑 Stopping environment '$PROFILE'...\033[0m"
-      compose_cmd "down"
+      docker compose --env-file "$ENV_FILE" --profile "$PROFILE" down --remove-orphans
+      echo -e "\033[31m🛑 Forcing stop of any remaining containers for '$PROFILE'...\033[0m"
+      docker ps -q --filter "name=${PROJECT_NAME}-${PROFILE}" | xargs -r docker stop
+      docker ps -q --filter "name=${PROJECT_NAME}-${PROFILE}" | xargs -r docker rm
+
     else
       echo -e "\033[31m🛑 Stopping ALL environments...\033[0m"
       for env in "${ALL_ENVS[@]}"; do
         get_env_file_and_profile "$env"
-        compose_cmd "down"
+        docker compose --env-file "$ENV_FILE" --profile "$PROFILE" down --remove-orphans
       done
+      echo -e "\033[31m🛑 Forcing stop of all remaining project containers...\033[0m"
+      docker ps -q --filter "name=${PROJECT_NAME}" | xargs -r docker stop
+      docker ps -q --filter "name=${PROJECT_NAME}" | xargs -r docker rm
     fi
+    echo -e "\033[33m🔎 Checking for remaining active containers...\033[0m"
+    docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Status}}"
     ;;
 
   restart)

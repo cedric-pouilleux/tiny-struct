@@ -1,0 +1,17 @@
+FROM node:20-slim
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y curl
+
+RUN npm install -g pnpm@10.4.1
+RUN npm install -g drizzle-kit
+
+COPY ./app/package.json ./app/pnpm-lock.yaml ./
+
+RUN pnpm install --frozen-lockfile --prod
+
+
+COPY ./app .
+
+CMD ["sh", "-c", "pnpm drizzle-kit push"]
+
