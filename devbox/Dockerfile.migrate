@@ -10,7 +10,6 @@ COPY ./app/package.json ./app/pnpm-lock.yaml ./
 
 RUN pnpm install --frozen-lockfile --prod
 
-
 COPY ./app .
 
 CMD ["sh", "-c", "pnpm drizzle-kit push"]
