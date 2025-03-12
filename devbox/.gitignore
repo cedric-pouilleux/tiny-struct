@@ -1,13 +1,8 @@
-db_data_*
-pg_data_*/
-db_data
+.env.development
+.env.production
+.env.integration
 
-*.log
-*.tar
-secrets/
-
-env/
-.env*
-.env
-.env.*
-!.env.example
+node_modules
+.git
+.next
+.output

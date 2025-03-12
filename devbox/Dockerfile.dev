@@ -4,15 +4,11 @@ WORKDIR /app
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-RUN pnpm --version
-
 COPY app/package.json app/pnpm-lock.yaml ./
 
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 
 COPY ./app /app
-
-ENV NODE_ENV=development
 
 EXPOSE 3000
 

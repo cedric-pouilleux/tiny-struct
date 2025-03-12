@@ -10,20 +10,17 @@ services:
     volumes:
       - ../app:/app
       - /app/node_modules
-      - ./env/.env.development:/app/.env
     env_file:
-      - ./env/.env.${ENV}
+      - ./env/.env.development
     depends_on:
-      database:
-        condition: service_healthy
+      - database
     networks:
       - app_network
-    entrypoint: ["/bin/sh", "-c", "pnpm dev"]
     profiles:
       - development
 
   nuxt-app:
-    image: ${NUXT_IMAGE:-miomnz/nuxt_app:latest}
+    image: miomnz/nuxt_app:latest
     ports:
       - "${NUXT_PORT}:3000"
     depends_on:
