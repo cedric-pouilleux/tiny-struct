@@ -3,8 +3,12 @@
 </template>
 
 <script lang="ts" setup>
-definePageMeta({
-  layout: 'default'
+defineI18nRoute({
+  paths: {
+    en: '/workshop',
+    fr: '/atelier',
+    es: '/taller'
+  }
 })
 </script>
 

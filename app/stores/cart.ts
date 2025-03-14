@@ -8,18 +8,18 @@ export const useCartStore = defineStore('cart', () => {
 
   async function fetchCart() {
     if (!fetchedUser.value) return
-    cart.value = await $fetch('/api/cart', {
+    cart.value = await $fetch<any>('/api/cart', {
       query: { userId: fetchedUser.value.id }
     })
   }
 
   async function addItem(itemId: number, quantity = 1) {
     if (!fetchedUser.value) return
-    await $fetch('/api/cart/add', {
+    await $fetch<any>('/api/cart/add', {
       method: 'POST',
       body: { userId: fetchedUser.value.id, itemId, quantity }
     })
-    await fetchCart() // Met à jour le panier
+    await fetchCart()
   }
 
   async function removeItem(itemId: number) {
@@ -28,7 +28,7 @@ export const useCartStore = defineStore('cart', () => {
       method: 'POST',
       body: { userId: fetchedUser.value.id, itemId }
     })
-    await fetchCart() // Met à jour le panier
+    await fetchCart()
   }
 
   return { cart, fetchCart, addItem, removeItem }

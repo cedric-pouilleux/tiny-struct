@@ -1,0 +1,12 @@
+{
+  "navigation.shop": "Boutique",
+  "navigation.workshop": "Atelier",
+  "navigation.cart": "Panier",
+  "navigation.account": "Compte",
+  "navigation.account.profile": "Mon compte",
+  "navigation.account.orders": "Mes commandes",
+  "navigation.account.admin": "Administration",
+  "navigation.account.signout": "Se déconnecter",
+  "navigation.account.signin": "S'indentifier",
+  "navigation.account.signin.google": "S'identifier avec Google"
+}

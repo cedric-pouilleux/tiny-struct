@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [vuePlugin()],
   test: {
     environment: 'jsdom',
-    exclude: ['tests/e2e/**', 'node_modules/**'],
+    exclude: ['tests/e2e/**', '**/node_modules/**'],
     coverage: {
       provider: 'istanbul',
       reporter: ['default', 'html']

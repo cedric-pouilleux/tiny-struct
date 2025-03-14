@@ -1,0 +1,12 @@
+{
+  "navigation.shop": "Tienda",
+  "navigation.workshop": "Taller",
+  "navigation.cart": "Carro de la compra",
+  "navigation.account": "Cuenta",
+  "navigation.account.profile": "Mi cuenta",
+  "navigation.account.orders": "Mis pedidos",
+  "navigation.account.admin": "Administración",
+  "navigation.account.signout": "Cerrar sesión",
+  "navigation.account.signin": "Entrar / Salir",
+  "navigation.account.signin.google": "Iniciar sesión con Google"
+}

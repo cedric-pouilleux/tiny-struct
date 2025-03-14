@@ -1,0 +1,12 @@
+{
+  "navigation.shop": "Shop",
+  "navigation.workshop": "Workshop",
+  "navigation.cart": "Shopping cart",
+  "navigation.account": "Account",
+  "navigation.account.profile": "My profile",
+  "navigation.account.orders": "My orders",
+  "navigation.account.admin": "Administration",
+  "navigation.account.signout": "Sign out",
+  "navigation.account.signin": "Sign in / Sign out",
+  "navigation.account.signin.google": "Sign in with Google"
+}

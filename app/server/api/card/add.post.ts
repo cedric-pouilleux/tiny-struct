@@ -10,20 +10,17 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'userId et itemId sont requis' })
   }
 
-  // Vérifie si l'item est déjà dans le panier de l'utilisateur
   const existing = await db
     .select()
     .from(userItems)
     .where(and(eq(userItems.userId, userId), eq(userItems.itemId, itemId)))
 
   if (existing.length > 0) {
-    // Mise à jour de la quantité
     await db
       .update(userItems)
       .set({ quantity: existing[0].quantity + quantity })
       .where(eq(userItems.id, existing[0].id))
   } else {
-    // Ajout d'un nouvel item au panier
     await db.insert(userItems).values({
       userId,
       itemId,
