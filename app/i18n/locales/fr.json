@@ -8,5 +8,12 @@
   "navigation.account.admin": "Administration",
   "navigation.account.signout": "Se déconnecter",
   "navigation.account.signin": "S'indentifier",
-  "navigation.account.signin.google": "S'identifier avec Google"
+  "navigation.account.signin.google": "S'identifier avec Google",
+  "language": {
+    "label": {
+      "fr": "Français",
+      "en": "Anglais",
+      "es": "Espagnol"
+    }
+  }
 }

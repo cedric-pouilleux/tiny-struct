@@ -15,8 +15,7 @@ export default defineEventHandler(async (event) => {
       id: userItems.id,
       quantity: userItems.quantity,
       item: {
-        id: items.id,
-        name: items.name
+        id: items.id
       }
     })
     .from(userItems)

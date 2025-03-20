@@ -1,11 +1,11 @@
 {
-  "id": "37f4a588-e1f8-456c-86b7-22e21b73a811",
+  "id": "5121a8ea-ec7a-4055-a7c5-c81ef308c9d9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.items-categories": {
-      "name": "items-categories",
+    "public.items_categories": {
+      "name": "items_categories",
       "schema": "",
       "columns": {
         "id": {
@@ -54,12 +54,123 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "category_translations_category_id_items-categories_id_fk": {
-          "name": "category_translations_category_id_items-categories_id_fk",
+        "category_translations_category_id_items_categories_id_fk": {
+          "name": "category_translations_category_id_items_categories_id_fk",
           "tableFrom": "category_translations",
-          "tableTo": "items-categories",
+          "tableTo": "items_categories",
           "columnsFrom": [
             "category_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.item_translations": {
+      "name": "item_translations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "language": {
+          "name": "language",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "item_translations_item_id_items_id_fk": {
+          "name": "item_translations_item_id_items_id_fk",
+          "tableFrom": "item_translations",
+          "tableTo": "items",
+          "columnsFrom": [
+            "item_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "item_translations_item_id_language_unique": {
+          "name": "item_translations_item_id_language_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "item_id",
+            "language"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.item_variant_translations": {
+      "name": "item_variant_translations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "variant_id": {
+          "name": "variant_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "language": {
+          "name": "language",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "item_variant_translations_variant_id_item_variants_id_fk": {
+          "name": "item_variant_translations_variant_id_item_variants_id_fk",
+          "tableFrom": "item_variant_translations",
+          "tableTo": "item_variants",
+          "columnsFrom": [
+            "variant_id"
           ],
           "columnsTo": [
             "id"
@@ -96,9 +207,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "description": {
-          "name": "description",
-          "type": "text",
+        "publish": {
+          "name": "publish",
+          "type": "boolean",
           "primaryKey": false,
           "notNull": true
         },
@@ -167,12 +278,6 @@
           "primaryKey": true,
           "notNull": true
         },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
         "category_id": {
           "name": "category_id",
           "type": "integer",
@@ -185,14 +290,21 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "items_category_id_items-categories_id_fk": {
-          "name": "items_category_id_items-categories_id_fk",
+        "items_category_id_items_categories_id_fk": {
+          "name": "items_category_id_items_categories_id_fk",
           "tableFrom": "items",
-          "tableTo": "items-categories",
+          "tableTo": "items_categories",
           "columnsFrom": [
             "category_id"
           ],

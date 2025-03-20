@@ -8,6 +8,11 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: process.env.ENV === 'development' },
   css: ['@/assets/main.css'],
+  runtimeConfig: {
+    public: {
+      availableLocales: ['fr', 'es', 'en']
+    }
+  },
   i18n: {
     lazy: true,
     customRoutes: 'page',

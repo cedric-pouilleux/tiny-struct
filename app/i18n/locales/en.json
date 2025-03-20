@@ -8,5 +8,12 @@
   "navigation.account.admin": "Administration",
   "navigation.account.signout": "Sign out",
   "navigation.account.signin": "Sign in / Sign out",
-  "navigation.account.signin.google": "Sign in with Google"
+  "navigation.account.signin.google": "Sign in with Google",
+  "language": {
+    "label": {
+      "fr": "French",
+      "en": "English",
+      "es": "Spanish"
+    }
+  }
 }

@@ -1,5 +1,14 @@
 import type { InferInsertModel, InferSelectModel } from 'drizzle-orm'
-import { pgTable, serial, text, timestamp, integer, numeric } from 'drizzle-orm/pg-core'
+import {
+  pgTable,
+  serial,
+  text,
+  timestamp,
+  integer,
+  numeric,
+  boolean,
+  unique
+} from 'drizzle-orm/pg-core'
 
 // Users
 export const users = pgTable('users', {
@@ -17,7 +26,7 @@ export const scales = pgTable('scales', {
 })
 
 // Items categories
-export const categories = pgTable('items-categories', {
+export const categories = pgTable('items_categories', {
   id: serial('id').primaryKey()
 })
 
@@ -33,12 +42,28 @@ export const categoryTranslations = pgTable('category_translations', {
 // Items generics
 export const items = pgTable('items', {
   id: serial('id').primaryKey(),
-  name: text('name').notNull(),
   categoryId: integer('category_id').references(() => categories.id, { onDelete: 'set null' }),
-  createdAt: timestamp('created_at').defaultNow().notNull()
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
 })
 
-// Items variations (avec échelle, prix et description)
+export const itemTranslations = pgTable(
+  'item_translations',
+  {
+    id: serial('id').primaryKey(),
+    itemId: integer('item_id')
+      .notNull()
+      .references(() => items.id, { onDelete: 'cascade' }),
+    language: text('language').notNull(),
+    name: text('name').notNull()
+  },
+  (table) => {
+    return {
+      uniqueItemLanguage: unique().on(table.itemId, table.language)
+    }
+  }
+)
+
 export const itemVariants = pgTable('item_variants', {
   id: serial('id').primaryKey(),
   itemId: integer('item_id')
@@ -47,13 +72,21 @@ export const itemVariants = pgTable('item_variants', {
   scaleId: integer('scale_id')
     .notNull()
     .references(() => scales.id, { onDelete: 'restrict' }),
-  description: text('description').notNull(),
+  publish: boolean('publish').notNull(),
   price: numeric('price', { precision: 10, scale: 2 }).notNull(),
   stlFile: text('stl_file').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull()
 })
 
-// shopping_cart
+export const itemVariantTranslations = pgTable('item_variant_translations', {
+  id: serial('id').primaryKey(),
+  variantId: integer('variant_id')
+    .notNull()
+    .references(() => itemVariants.id, { onDelete: 'cascade' }),
+  language: text('language').notNull(),
+  description: text('description').notNull()
+})
+
 export const userItems = pgTable('shopping_cart', {
   id: serial('id').primaryKey(),
   userId: integer('user_id')
@@ -77,6 +110,28 @@ export type CategoryTranslation = InferSelectModel<typeof categoryTranslations>
 export type CategoryTranslationInsert = InferInsertModel<typeof categoryTranslations>
 export type Scale = InferSelectModel<typeof scales>
 export type Item = InferSelectModel<typeof items>
+export type ItemInsert = InferInsertModel<typeof items>
+export type ItemTranslation = InferSelectModel<typeof itemTranslations>
+export type ItemTranslationInsert = InferInsertModel<typeof itemTranslations>
 export type ItemVariant = InferSelectModel<typeof itemVariants>
+export type ItemVariantTranslation = InferSelectModel<typeof itemVariantTranslations>
+export type ItemVariantTranslationInsert = InferInsertModel<typeof itemVariantTranslations>
 export type UserItem = InferSelectModel<typeof userItems>
 export type User = InferSelectModel<typeof users>
+
+export type CategoryFull = Category & {
+  translations: Record<string, string>
+}
+
+// Payloads
+export type ItemVariantInsert = Partial<InferInsertModel<typeof itemVariants>> & {
+  translations: Record<string, string>
+}
+
+export type EditableItem = Partial<Item> & {
+  categoryId?: number
+  translations: {
+    language: string
+    name?: string
+  }[]
+}

@@ -8,5 +8,12 @@
   "navigation.account.admin": "Administración",
   "navigation.account.signout": "Cerrar sesión",
   "navigation.account.signin": "Entrar / Salir",
-  "navigation.account.signin.google": "Iniciar sesión con Google"
+  "navigation.account.signin.google": "Iniciar sesión con Google",
+  "language": {
+    "label": {
+      "fr": "Francés",
+      "en": "Inglés",
+      "es": "Español"
+    }
+  }
 }
