@@ -1,5 +1,5 @@
 <template>
-  <ul class="mt-2">
+  <ul v-if="variants.length" class="mt-2">
     <li
       v-for="variant in variants"
       :key="variant.id"
@@ -19,6 +19,9 @@
           :created-at="getFormatedDate(variant.createdAt)"
           :description="variant.translations[locale]"
           :publish="variant.publish"
+          :stl-mold="variant.stlMold"
+          :stl-master="variant.stlMaster"
+          :stl-final="variant.stlFinal"
         />
         <ItemVariantActions
           :last-edit-date="getFormatedDate(variant.createdAt)"
@@ -35,11 +38,13 @@
       />
     </li>
   </ul>
+  <div v-else class="text-sm mt-2">No variants</div>
   <ItemVariantForm
     v-if="newFormOpen && !openVariant.itemId"
     v-model="currentVariant"
     class="mt-3"
     @save="handleSaveVariant"
+    @close="newFormOpen = false"
   />
 </template>
 
@@ -48,8 +53,9 @@ import ItemVariantInfos from '../items/ItemVariantInfos.vue'
 import ItemVariantActions from '../items/ItemVariantActions.vue'
 import ItemVariantForm from './ItemVariant.form.vue'
 import { addItemVariant, editItemVariant, removeItemVariant } from '~/services/itemVariantService'
-import { type ItemVariantInsert } from '~/server/db/schema'
 import type { ItemReponse } from '~/server/api/item/all.get'
+import type { ItemVariantAddPayload } from '~/server/api/item/variant/add'
+import type { ItemVariantEditPayload } from '~/server/api/item/variant/edit'
 
 const props = defineProps<{
   itemId: number
@@ -73,17 +79,21 @@ interface OpenVariantState {
 
 const openVariant = ref<OpenVariantState>({ itemId: null, variantId: null })
 
-const defaultVariant: Partial<ItemVariantInsert> = {
+export type ItemVariantPayload = Partial<ItemVariantAddPayload & { id: number }>
+
+const defaultVariant: Partial<ItemVariantAddPayload & ItemVariantEditPayload> = {
   id: undefined,
   itemId: undefined,
   scaleId: undefined,
   price: undefined,
-  stlFile: undefined,
+  stlMasterFile: undefined,
+  stlMoldFile: undefined,
+  stlFinalFile: undefined,
   publish: undefined,
   translations: Object.fromEntries(availableLocales.map((loc) => [loc, '']))
 }
 
-const currentVariant = reactive<Partial<ItemVariantInsert>>({
+const currentVariant = reactive<Partial<ItemVariantAddPayload & ItemVariantEditPayload>>({
   ...defaultVariant
 })
 
@@ -91,7 +101,7 @@ function resetCurrentVariant() {
   Object.assign(currentVariant, { ...defaultVariant })
 }
 
-function setCurrentVariant(variant: ItemVariantInsert) {
+function setCurrentVariant(variant: ItemVariantPayload) {
   Object.assign(currentVariant, { ...variant })
 }
 
@@ -104,7 +114,7 @@ function closeVariantForm() {
   resetCurrentVariant()
 }
 
-function openVariantForm(itemId: number, variant?: ItemVariantInsert) {
+function openVariantForm(itemId: number, variant?: ItemVariantPayload) {
   openVariant.value = {
     itemId,
     variantId: variant?.id ?? null
@@ -118,7 +128,7 @@ function openVariantForm(itemId: number, variant?: ItemVariantInsert) {
   }
 }
 
-function toggleVariantForm(itemId: number, variant?: ItemVariantInsert) {
+function toggleVariantForm(itemId: number, variant?: ItemVariantPayload) {
   newFormOpen.value = false
   const sameVariantIsOpen =
     openVariant.value.itemId === itemId && openVariant.value.variantId === (variant?.id ?? null)
@@ -153,11 +163,30 @@ async function handleRemoveVariant(variant: ItemReponse['variants'][number]) {
   }
 }
 
+// TODO => Define optional payload for add item variant
 async function addVariant() {
+  if (
+    !currentVariant.itemId &&
+    !currentVariant.scaleId &&
+    !currentVariant.price &&
+    !currentVariant.stlFinalFile &&
+    !currentVariant.stlMoldFile &&
+    !currentVariant.stlMasterFile
+  ) {
+    return
+  }
   try {
-    const variant = await addItemVariant(
-      currentVariant.itemId ? currentVariant : { ...currentVariant, itemId: props.itemId }
-    )
+    const form = new FormData()
+    form.append('itemId', props.itemId!.toString())
+    form.append('scaleId', currentVariant.scaleId!.toString())
+    form.append('price', currentVariant.price!.toString())
+    form.append('publish', currentVariant.publish ? currentVariant.publish.toString() : 'false')
+    form.append('stlFinalFile', currentVariant.stlFinalFile!)
+    form.append('stlMoldFile', currentVariant.stlMoldFile!)
+    form.append('stlMasterFile', currentVariant.stlMasterFile!)
+    form.append('translations', JSON.stringify(currentVariant.translations))
+
+    const variant = await addItemVariant(form)
     itemVariantSuccess(variant.id, variant.itemId, 'added')
     emits('refresh')
   } catch (error: any) {
@@ -165,10 +194,23 @@ async function addVariant() {
   }
 }
 
+// TODO => Refacto edit variant send only value was change
 async function editVariant() {
   try {
-    const { variantId } = await editItemVariant(currentVariant)
+    const form = new FormData()
+    form.append('id', currentVariant.id!.toString())
+    form.append('scaleId', currentVariant.scaleId!.toString())
+    form.append('price', currentVariant.price!.toString())
+    form.append('publish', currentVariant.publish ? currentVariant.publish.toString() : 'false')
+
+    currentVariant.stlFinalFile && form.append('stlFinalFile', currentVariant.stlFinalFile)
+    currentVariant.stlMoldFile && form.append('stlMoldFile', currentVariant.stlMoldFile)
+    currentVariant.stlMasterFile && form.append('stlMasterFile', currentVariant.stlMasterFile)
+    form.append('translations', JSON.stringify(currentVariant.translations))
+
+    const { variantId } = await editItemVariant(form)
     itemVariantSuccess(variantId, currentVariant.itemId!, 'edited')
+    closeVariantForm()
     emits('refresh')
   } catch (error: any) {
     toastError(error.statusCode, error.statusMessage)

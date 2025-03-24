@@ -1,13 +1,13 @@
 import { db } from '~/server/db'
-import { itemVariants, itemVariantTranslations } from '~/server/db/schema'
+import { ItemVariant, itemVariants, itemVariantTranslations } from '~/server/db/schema'
 import { and, eq } from 'drizzle-orm'
+import { stlProcess } from '~/server/utils/stlProcess'
 
-export type ItemVarianEditPayload = {
+export type ItemVariantEditPayload = Partial<ItemVariant> & {
   id: number
-  scaleId?: number
-  price?: string
-  stlFile?: string
-  publish?: boolean
+  stlMasterFile?: File
+  stlMoldFile?: File
+  stlFinalFile?: File
   translations?: Record<string, string>
 }
 
@@ -16,11 +16,26 @@ export type ItemVarianEditResponse = {
 }
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody<ItemVarianEditPayload>(event)
-  const { id, scaleId, price, stlFile, publish, translations } = body
+  const form = await readFormData(event)
+
+  const id = Number(form.get('id'))
+  const scaleId = Number(form.get('scaleId'))
+  const price = form.get('price') as string
+  const publish = form.get('publish') === 'true'
+  const translationsJson = form.get('translations') as string
+  const stlMasterFile = form.get('stlMasterFile') as File | null
+  const stlMoldFile = form.get('stlMoldFile') as File | null
+  const stlFinalFile = form.get('stlFinalFile') as File | null
+  const translations: ItemVariantEditPayload['translations'] = translationsJson
+    ? JSON.parse(translationsJson)
+    : {}
 
   if (!id) {
     throw createError({ statusCode: 400, message: 'variantId is required' })
+  }
+
+  if (!translations?.en) {
+    throw createError({ statusCode: 400, message: 'English translation is required' })
   }
 
   const existingVariant = await db
@@ -32,14 +47,36 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Variant not found' })
   }
 
+  const setObject = {
+    scaleId: scaleId ?? existingVariant[0].scaleId,
+    price: price ?? existingVariant[0].price,
+    publish: publish ?? existingVariant[0].publish,
+    stlMaster: existingVariant[0].stlMaster,
+    stlMold: existingVariant[0].stlMold,
+    stlFinal: existingVariant[0].stlFinal
+  }
+
+  console.log(stlMasterFile)
+  console.log(stlFinalFile)
+  console.log(stlMoldFile)
+
+  // Fix translation set if existing
+  if (stlMasterFile) {
+    const stlMasterName = await stlProcess(stlMasterFile, translations.en, 'master')
+    setObject.stlMaster = stlMasterName
+  }
+  if (stlFinalFile) {
+    const stlFinalName = await stlProcess(stlFinalFile, translations.en, 'final')
+    setObject.stlFinal = stlFinalName
+  }
+  if (stlMoldFile) {
+    const stlMoldName = await stlProcess(stlMoldFile, translations.en, 'mold')
+    setObject.stlMold = stlMoldName
+  }
+
   await db
     .update(itemVariants)
-    .set({
-      scaleId: scaleId ?? existingVariant[0].scaleId,
-      price: price ?? existingVariant[0].price,
-      stlFile: stlFile ?? existingVariant[0].stlFile,
-      publish: publish ?? existingVariant[0].publish
-    })
+    .set(setObject)
     .where(eq(itemVariants.id, Number(id)))
 
   if (translations && Object.keys(translations).length > 0) {

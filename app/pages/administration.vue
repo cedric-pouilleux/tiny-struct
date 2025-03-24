@@ -7,6 +7,7 @@
       <CategoriesBloc />
       <USeparator class="py-3" type="dashed" />
       <ItemScale />
+      <ItemMaterial />
     </div>
   </div>
 </template>
@@ -15,7 +16,7 @@
 import CategoriesBloc from '~/components/back-office/categories/CategoriesBloc.vue'
 import ItemScale from '~/components/back-office/scales/ScalesBloc.vue'
 import ItemsBloc from '~/components/back-office/items/ItemsBloc.vue'
-import ItemForm from '~/components/back-office/items/ItemForm.vue'
+import ItemMaterial from '~/components/back-office/items/material/ItemMaterial.vue'
 
 // TODO => Add loader & skeleton
 const { status } = await useAsyncData('admin-datas-page', () =>

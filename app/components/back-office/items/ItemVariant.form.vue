@@ -1,7 +1,7 @@
 <template>
-  <UForm :state="modelValue" class="">
+  <UForm :state="modelValue">
     <div class="flex justify-between items-center">
-      <h3 v-if="!modelValue.id">Add item variant</h3>
+      <h3 v-if="!modelValue.id" class="my-4">Add item variant</h3>
     </div>
     <div class="flex gap-4">
       <UFormField label="Publish" class="text-center">
@@ -16,17 +16,23 @@
           <UInput v-model="modelValue.price" :items="formattedScales" class="w-16" />
         </UButtonGroup>
       </UFormField>
-      <UFormField label="STL File">
-        <UInput v-model="modelValue.stlFile" class="w-26" />
+      <UFormField label="STL Master File">
+        <UInput type="file" accept=".stl" @change="onStlMasterChange" />
       </UFormField>
-      <UFormField label="Description" class="flex-grow">
-        <UTabs :items="tabsLanguages" class="w-full" size="xs" default-value="fr">
-          <template #content="{ item }">
-            <UTextarea v-model="modelValue.translations![item.value]" class="w-full" />
-          </template>
-        </UTabs>
+      <UFormField label="STL Mold File">
+        <UInput type="file" accept=".stl" @change="onStlMoldChange" />
+      </UFormField>
+      <UFormField label="STL Final File">
+        <UInput type="file" accept=".stl" @change="onStlFinalChange" />
       </UFormField>
     </div>
+    <UFormField label="Description" class="flex-grow">
+      <UTabs :items="tabsLanguages" class="w-full" size="xs" default-value="fr">
+        <template #content="{ item }">
+          <UTextarea v-model="modelValue.translations![item.value]" class="w-full" />
+        </template>
+      </UTabs>
+    </UFormField>
     <div class="flex justify-end mt-4">
       <UButton
         class="mr-3"
@@ -41,16 +47,19 @@
         icon="mingcute:plus-fill"
         :label="modelValue.id ? 'Save' : 'Add'"
         size="xs"
-        @click="emits('save')"
+        @click="handleSave"
       />
     </div>
   </UForm>
 </template>
 
 <script lang="ts" setup>
-import type { ItemVariantInsert } from '~/server/db/schema'
+import type { ItemVariantAddPayload } from '~/server/api/item/variant/add'
+import type { ItemVariantEditPayload } from '~/server/api/item/variant/edit'
 
-const modelValue = defineModel<Partial<ItemVariantInsert>>({ required: true })
+const modelValue = defineModel<Partial<ItemVariantAddPayload & ItemVariantEditPayload>>({
+  required: true
+})
 
 const scaleStore = useScaleStore()
 const { scales } = storeToRefs(scaleStore)
@@ -67,4 +76,28 @@ const formattedScales = computed(() =>
     value: item.id
   }))
 )
+
+// TODO => Use one event callback for all STL files
+function onStlMasterChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  if (target.files && target.files.length > 0) {
+    modelValue.value.stlMasterFile = target.files[0]
+  }
+}
+function onStlMoldChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  if (target.files && target.files.length > 0) {
+    modelValue.value.stlMoldFile = target.files[0]
+  }
+}
+function onStlFinalChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  if (target.files && target.files.length > 0) {
+    modelValue.value.stlFinalFile = target.files[0]
+  }
+}
+
+function handleSave() {
+  emits('save')
+}
 </script>

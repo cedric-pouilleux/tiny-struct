@@ -3,7 +3,7 @@
 import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
-  modules: ['@nuxt/ui', '@pinia/nuxt', 'nuxt-auth-utils', '@nuxtjs/i18n'],
+  modules: ['@nuxt/ui', '@pinia/nuxt', 'nuxt-auth-utils', '@nuxtjs/i18n', '@tresjs/nuxt'],
   ssr: true,
   compatibilityDate: '2024-11-01',
   devtools: { enabled: process.env.ENV === 'development' },

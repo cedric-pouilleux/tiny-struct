@@ -30,7 +30,9 @@ CREATE TABLE "item_variants" (
 	"scale_id" integer NOT NULL,
 	"publish" boolean NOT NULL,
 	"price" numeric(10, 2) NOT NULL,
-	"stl_file" text NOT NULL,
+	"stl_mold" text NOT NULL,
+	"stl_master" text NOT NULL,
+	"stl_final" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint

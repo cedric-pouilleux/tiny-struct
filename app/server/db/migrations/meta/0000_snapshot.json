@@ -1,5 +1,5 @@
 {
-  "id": "5121a8ea-ec7a-4055-a7c5-c81ef308c9d9",
+  "id": "b838d4eb-f978-4ac6-94fe-5ba4c5448776",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -219,8 +219,20 @@
           "primaryKey": false,
           "notNull": true
         },
-        "stl_file": {
-          "name": "stl_file",
+        "stl_mold": {
+          "name": "stl_mold",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stl_master": {
+          "name": "stl_master",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stl_final": {
+          "name": "stl_final",
           "type": "text",
           "primaryKey": false,
           "notNull": true

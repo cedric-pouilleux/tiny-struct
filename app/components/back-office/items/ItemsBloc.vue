@@ -4,7 +4,7 @@
     :ui="{
       root: 'rounded-[calc(var(--ui-radius)*1.8)]',
       header: 'p-2 sm:px-3',
-      body: 'sm:p-0 sm:pl-3 sm:pr-3'
+      body: 'sm:p-1 sm:pl-3 sm:pr-3'
     }"
   >
     <template #header>
@@ -14,7 +14,6 @@
       </div>
     </template>
     <ItemForm
-      class="mb-4"
       v-if="isOpenForm"
       v-model="itemState"
       :categories="formattedSelectCategories"
@@ -30,6 +29,7 @@
       @edit="openForm(item)"
       @remove="handleRemoveItem"
     />
+    <div v-if="!data?.length" class="text-sm">No items</div>
   </UCard>
 </template>
 

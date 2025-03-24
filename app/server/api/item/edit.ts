@@ -1,6 +1,6 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import { db } from '~/server/db'
-import { items, itemTranslations } from '~/server/db/schema'
+import { items, itemTranslations, ItemVariant } from '~/server/db/schema'
 import { eq } from 'drizzle-orm'
 
 export type ItemEditPayload = {

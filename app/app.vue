@@ -1,7 +1,7 @@
 <template>
   <UApp :locale="locales[locale]">
     <UContainer>
-      <TopNavigation />
+      <TopNavigation class="z-50 relative" />
       <NuxtPage />
     </UContainer>
   </UApp>

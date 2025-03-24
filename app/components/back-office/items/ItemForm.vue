@@ -2,9 +2,9 @@
   <UCard
     variant="outline"
     :ui="{
-      root: 'rounded-[calc(var(--ui-radius)*1.8)]',
+      root: 'rounded-[calc(var(--ui-radius)*1.8)] my-2 mb-3',
       header: 'p-3 sm:px-3',
-      body: 'p-3 sm:p-3'
+      body: 'sm:p-3'
     }"
   >
     <template #header>

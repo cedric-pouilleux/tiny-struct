@@ -22,7 +22,7 @@
       </UButtonGroup>
     </li>
   </ul>
-  <div class="text-sm border border-orange-200 rounded-md p-1 pl-4" v-else>No categories</div>
+  <div class="text-sm" v-else>No categories</div>
 </template>
 
 <script lang="ts" setup>
