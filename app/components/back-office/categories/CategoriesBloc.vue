@@ -1,30 +1,17 @@
 <template>
-  <UCard
-    :ui="{
-      root: 'rounded-lg shadow-xs',
-      header: 'sm:pt-2 sm:pb-2 sm:pl-4 sm:pr-4',
-      body: 'sm:pt-2 sm:pb-2 sm:pl-4 sm:pr-4'
-    }"
-  >
+  <UCard>
     <template #header>
-      <header class="flex justify-between items-center">
-        <h2>Categories</h2>
-        <UButton
-          icon="mingcute:plus-fill"
-          size="xs"
-          label="New"
-          :variant="isOpenCategoryForm ? 'outline' : 'solid'"
-          @click="handleAddNewCategory"
-        />
-      </header>
+      <RightColumnHeader
+        :model-value="isOpenForm"
+        title="Categories"
+        @update:model-value="handleNew"
+      />
     </template>
-    <CategoryForm
-      v-model="category"
-      :open="isOpenCategoryForm"
-      @refresh="categoryStore.refreshCategories()"
-    />
-    <CategoriesList
-      :categories="categories"
+    <CategoryForm v-if="isOpenForm" v-model="category">
+      <FormActions :edit-mode="!!category.id" @upsert="handleUpsert" @close="isOpenForm = false" />
+    </CategoryForm>
+    <RightColumnList
+      :data="currentLocaleCategories"
       @edit="handleEditCategory"
       @remove="handleRemoveCategory"
     />
@@ -32,61 +19,81 @@
 </template>
 
 <script lang="ts" setup>
-import type { CategoryWithTranslations } from '~/server/db/schema'
 import { useCategoryStore } from '~/stores/useCategory.store'
-import { removeItemCategory } from '~/services/itemCategoryService'
-import CategoriesList from './CategoriesList.vue'
 import CategoryForm from './CategoryForm.vue'
+import type { FormCategory } from '~/shared/types/categories'
+import RightColumnHeader from '../ui/RightColumnHeader.vue'
+import RightColumnList from '../ui/RightColumnList.vue'
+import FormActions from '../ui/FormActions.vue'
 
+const { locale } = useI18n()
 const categoryStore = useCategoryStore()
-const { categories } = storeToRefs(categoryStore)
-const { toastError, itemCategorySuccess } = useServiceToast()
+const { categoriesWithRecordTranslation } = storeToRefs(categoryStore)
+const { toastError, defaultSuccessToaster } = useServiceToast()
+const { recordLanguageDefaultField } = useLanguages()
 
-const { availableLocales } = useI18n()
-
-const category = reactive<Partial<CategoryWithTranslations>>({
+const category = reactive<FormCategory>({
   id: undefined,
-  translations: Object.fromEntries(availableLocales.map((lang) => [lang, '']))
+  descriptions: recordLanguageDefaultField(),
+  names: recordLanguageDefaultField()
 })
 
-const isOpenCategoryForm = ref<boolean>(false)
+const isOpenForm = ref<boolean>(false)
 
-function handleEditCategory(pCategory: CategoryWithTranslations) {
-  category.id = pCategory.id
-  category.translations = structuredClone(toRaw(pCategory.translations)) ?? {
-    fr: '',
-    en: '',
-    es: ''
+const currentLocaleCategories = computed<{ id: number; value: string }[]>(() =>
+  categoriesWithRecordTranslation.value.map((category) => ({
+    id: category.id,
+    value: category.names[locale.value]
+  }))
+)
+
+function handleEditCategory(categoryId: number) {
+  if (isOpenForm.value && category.id === categoryId) {
+    isOpenForm.value = false
+  } else {
+    isOpenForm.value = true
   }
-  isOpenCategoryForm.value = true
+  Object.assign(
+    category,
+    categoriesWithRecordTranslation.value.find((category) => category.id === categoryId)
+  )
 }
 
-function handleAddNewCategory(): void {
-  if (isOpenCategoryForm.value) {
-    const hasContent =
-      Object.values(category.translations ?? {}).some((name) => name.length) || category.id
-    if (hasContent && category.translations) {
-      Object.keys(category.translations).forEach((lang) => {
-        if (category.translations) {
-          category.translations[lang] = ''
-        }
-      })
-      category.id = undefined
-    } else {
-      isOpenCategoryForm.value = false
-    }
+function handleNew() {
+  if (isOpenForm.value && !category.id) {
+    isOpenForm.value = false
   } else {
-    isOpenCategoryForm.value = true
+    isOpenForm.value = true
+    Object.assign(category, {
+      id: undefined,
+      descriptions: recordLanguageDefaultField(),
+      names: recordLanguageDefaultField()
+    })
   }
 }
 
 async function handleRemoveCategory(id: number): Promise<void> {
   try {
-    const removedCategoryId = await removeItemCategory(id)
-    itemCategorySuccess(removedCategoryId, 'removed')
-    await categoryStore.refreshCategories()
+    const removedCategoryId = await categoryStore.remove(id)
+    defaultSuccessToaster(`Category with id ${removedCategoryId} successfull removed`)
   } catch (error: any) {
     toastError(error.statusCode, error.statusMessage)
+  }
+}
+
+async function handleUpsert() {
+  if (!category.descriptions && category.names) {
+    return
+  }
+  if (category.id) {
+    // await materialStore.edit(material)
+  } else {
+    try {
+      const addedCategoryId = await categoryStore.add(category)
+      defaultSuccessToaster(`Category with id ${addedCategoryId} successfull added`)
+    } catch (error: any) {
+      toastError(error.statusCode, error.statusMessage)
+    }
   }
 }
 </script>

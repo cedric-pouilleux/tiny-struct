@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { ItemReponse } from '~/server/api/item/all.get'
+import type { ItemReponse } from '~/server/api/_item/all.get'
 import ItemActions from './ItemActions.vue'
 import ItemInfos from './ItemInfos.vue'
 import ItemsVariants from './ItemsVariants.vue'

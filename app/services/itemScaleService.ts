@@ -1,29 +1,27 @@
-import type { ItemScaleAddPayload } from '~/server/api/item/scale/add'
-import type { Scale } from '~/server/db/schema'
+import type { Scale } from '~/server/db/types/scales'
 
 export function getItemsScale(): Promise<Scale[]> {
-  return $fetch<Scale[]>('/api/item/scale/all')
+  return $fetch<Scale[]>('/api/scales')
 }
 
-export function addItemScale(payload: ItemScaleAddPayload): Promise<number> {
-  return $fetch<number>('/api/item/scale/add', {
+export function addItemScale(scale: string): Promise<number> {
+  return $fetch<number>('/api/scales', {
     method: 'POST',
-    body: payload
+    body: {
+      scale
+    }
   })
 }
 
 export function editItemScale(payload: Scale): Promise<number> {
-  return $fetch<number>('/api/item/scale/edit', {
+  return $fetch<number>(`/api/scales/${payload.id}`, {
     method: 'PUT',
     body: payload
   })
 }
 
 export function removeItemScale(scaleId: number): Promise<number> {
-  return $fetch<number>('/api/item/scale/delete', {
-    method: 'DELETE',
-    body: {
-      id: scaleId
-    }
+  return $fetch<number>(`/api/scales/${scaleId}`, {
+    method: 'DELETE'
   })
 }

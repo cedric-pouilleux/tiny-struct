@@ -52,7 +52,7 @@
 
 <script lang="ts" setup>
 import { UInput } from '#components'
-import type { ItemAddPayload } from '~/server/api/item/add'
+import type { ItemAddPayload } from '~/server/api/_item/add'
 import { addItem, editItem } from '~/services/itemService'
 
 const { toastError, itemSuccess } = useServiceToast()

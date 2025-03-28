@@ -9,6 +9,14 @@ export function useServiceToast() {
     })
   }
 
+  function defaultSuccessToaster(title: string): void {
+    toast.add({
+      title,
+      icon: 'mdi:success-bold',
+      color: 'success'
+    })
+  }
+
   function itemSuccess(itemId: number, action: string) {
     toast.add({
       title: `Item ID: ${itemId} successfull ${action}`,
@@ -47,6 +55,7 @@ export function useServiceToast() {
     itemVariantSuccess,
     itemCategorySuccess,
     itemScaleSuccess,
-    itemSuccess
+    itemSuccess,
+    defaultSuccessToaster
   }
 }

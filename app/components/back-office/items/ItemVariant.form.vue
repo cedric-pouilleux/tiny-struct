@@ -27,7 +27,7 @@
       </UFormField>
     </div>
     <UFormField label="Description" class="flex-grow">
-      <UTabs :items="tabsLanguages" class="w-full" size="xs" default-value="fr">
+      <UTabs :items="tabLanguages" class="w-full" size="xs" default-value="fr">
         <template #content="{ item }">
           <UTextarea v-model="modelValue.translations![item.value]" class="w-full" />
         </template>
@@ -54,8 +54,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { ItemVariantAddPayload } from '~/server/api/item/variant/add'
-import type { ItemVariantEditPayload } from '~/server/api/item/variant/edit'
+import type { ItemVariantAddPayload } from '~/server/api/_item/variant/add'
+import type { ItemVariantEditPayload } from '~/server/api/_item/variant/edit'
 
 const modelValue = defineModel<Partial<ItemVariantAddPayload & ItemVariantEditPayload>>({
   required: true
@@ -63,7 +63,7 @@ const modelValue = defineModel<Partial<ItemVariantAddPayload & ItemVariantEditPa
 
 const scaleStore = useScaleStore()
 const { scales } = storeToRefs(scaleStore)
-const { tabsLanguages } = useLanguages()
+const { tabLanguages } = useLanguages()
 
 const emits = defineEmits<{
   (e: 'save'): void

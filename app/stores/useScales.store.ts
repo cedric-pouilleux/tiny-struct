@@ -1,4 +1,4 @@
-import { type Scale } from '~/server/db/schema'
+import type { Scale } from '~/server/db/types/scales'
 import { getItemsScale } from '~/services/itemScaleService'
 
 export const useScaleStore = defineStore('scales', () => {

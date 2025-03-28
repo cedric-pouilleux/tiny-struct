@@ -34,11 +34,11 @@
 </template>
 
 <script setup lang="ts">
-import type { ItemReponse } from '~/server/api/item/all.get'
+import type { ItemReponse } from '~/server/api/_item/all.get'
 import Item from './Item.vue'
 import { getItems } from '~/services/itemService'
 import ItemForm from './ItemForm.vue'
-import type { ItemAddPayload } from '~/server/api/item/add'
+import type { ItemAddPayload } from '~/server/api/_item/add'
 
 const { data, error, refresh } = await useAsyncData<ItemReponse[]>('all-items', () => getItems())
 const { availableLocales } = useI18n()

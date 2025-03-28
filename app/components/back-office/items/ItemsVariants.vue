@@ -53,9 +53,9 @@ import ItemVariantInfos from '../items/ItemVariantInfos.vue'
 import ItemVariantActions from '../items/ItemVariantActions.vue'
 import ItemVariantForm from './ItemVariant.form.vue'
 import { addItemVariant, editItemVariant, removeItemVariant } from '~/services/itemVariantService'
-import type { ItemReponse } from '~/server/api/item/all.get'
-import type { ItemVariantAddPayload } from '~/server/api/item/variant/add'
-import type { ItemVariantEditPayload } from '~/server/api/item/variant/edit'
+import type { ItemReponse } from '~/server/api/_item/all.get'
+import type { ItemVariantAddPayload } from '~/server/api/_item/variant/add'
+import type { ItemVariantEditPayload } from '~/server/api/_item/variant/edit'
 
 const props = defineProps<{
   itemId: number

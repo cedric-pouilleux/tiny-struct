@@ -1,88 +1,35 @@
 <template>
-  <UForm v-if="open" :state="modelValue" class="w-full" @submit="handleUpsertCategory">
-    <UFormField label="Name" class="flex-1" size="sm">
-      <UButtonGroup class="w-full mb-2" v-for="lang in availableLocales" :key="lang">
-        <UBadge
-          class="w-10 flex items-center justify-center"
-          color="neutral"
-          variant="outline"
-          :label="lang"
-        />
-        <UInput v-model="modelValue.translations![lang]" class="w-full" />
-      </UButtonGroup>
-    </UFormField>
-    <div class="flex justify-end mt-2">
-      <UButton
-        type="submit"
-        size="sm"
-        :trailing-icon="modelValue.id ? 'bytesize:edit' : 'mingcute:plus-fill'"
-        :label="modelValue.id ? 'Edit category' : 'Add category'"
-        variant="outline"
-      />
-    </div>
+  <UForm :state="category" class="w-full">
+    <UAccordion
+      v-model="accordeonSelected"
+      :items="accordionLanguages"
+      type="multiple"
+      :ui="{ trigger: 'py-1.5' }"
+    >
+      <template #content="{ item }">
+        <UFormField size="xs" class="mt-3">
+          <UInput v-model="category.names[item.value!]" class="w-full" placeholder="Name" />
+        </UFormField>
+        <UFormField size="xs" class="mt-3 mb-2">
+          <UTextarea
+            v-model="category.descriptions[item.value!]"
+            class="w-full"
+            placeholder="Description"
+          />
+        </UFormField>
+      </template>
+    </UAccordion>
+    <slot />
   </UForm>
 </template>
 
 <script setup lang="ts">
-import type { CategoryWithTranslations } from '~/server/db/schema'
-import { addItemCategory, editItemCategory } from '~/services/itemCategoryService'
-const { toastError, itemCategorySuccess } = useServiceToast()
+import type { FormCategory } from '~/shared/types/categories'
 
-defineProps<{
-  open?: boolean
-}>()
+const category = defineModel<FormCategory>({ required: true })
 
-const emits = defineEmits<{
-  (e: 'refresh'): void
-}>()
+const { locale } = useI18n()
+const { accordionLanguages } = useLanguages()
 
-const modelValue = defineModel<Partial<CategoryWithTranslations>>({ required: true })
-
-const { availableLocales } = useI18n()
-
-async function handleUpsertCategory() {
-  modelValue.value.id ? await editCategory() : await addCategory()
-}
-
-function resetStateCategory() {
-  modelValue.value.translations = { fr: '', en: '', es: '' }
-  modelValue.value.id = undefined
-}
-
-async function addCategory(): Promise<void> {
-  try {
-    const translationsArray = Object.entries(modelValue.value.translations ?? {}).map(
-      ([lang, name]) => ({
-        language: lang,
-        name
-      })
-    )
-    const addedCategoryId = await addItemCategory({ translations: translationsArray })
-    itemCategorySuccess(addedCategoryId, 'added')
-    emits('refresh')
-    resetStateCategory()
-  } catch (error: any) {
-    toastError(error.statusCode, error.statusMessage)
-  }
-}
-
-async function editCategory(): Promise<void> {
-  try {
-    const translationsArray = Object.entries(modelValue.value.translations ?? {}).map(
-      ([lang, name]) => ({
-        language: lang,
-        name
-      })
-    )
-    const editedCategoryId = await editItemCategory({
-      id: modelValue.value.id!,
-      translations: translationsArray
-    })
-    itemCategorySuccess(editedCategoryId, 'edited')
-    emits('refresh')
-    resetStateCategory()
-  } catch (error: any) {
-    toastError(error.statusCode, error.statusMessage)
-  }
-}
+const accordeonSelected = ref<string[]>([locale.value])
 </script>

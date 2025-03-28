@@ -1,11 +1,5 @@
 <template>
-  <UCard
-    :ui="{
-      root: 'rounded-lg shadow-xs',
-      header: 'sm:pt-2 sm:pb-2 sm:pl-4 sm:pr-4',
-      body: 'sm:pt-2 sm:pb-2 sm:pl-4 sm:pr-4'
-    }"
-  >
+  <UCard>
     <template #header>
       <header class="flex justify-between items-center">
         <h2>Scales</h2>
@@ -24,10 +18,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { Scale } from '~/server/db/schema'
+// TODO => Refacto this component like CategoriesBloc or MaterialsBloc
 import { removeItemScale } from '~/services/itemScaleService'
 import ScalesList from './ScalesList.vue'
 import ScaleForm from './ScaleForm.vue'
+import type { Scale } from '~/server/db/types/scales'
 
 const scaleStore = useScaleStore()
 const { scales } = storeToRefs(scaleStore)
@@ -52,7 +47,7 @@ function handleAdd(): void {
   isFormOpen.value = !isFormOpen.value
 }
 
-function handleEdit(pScale: Scale) {
+function handleEdit(pScale: Partial<Scale>) {
   stateScale.id = pScale.id
   stateScale.scale = pScale.scale
   isFormOpen.value = true

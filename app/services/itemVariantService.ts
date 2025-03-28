@@ -1,6 +1,6 @@
-import type { ItemVariantAddResponse } from '~/server/api/item/variant/add'
-import type { ItemVarianEditPayload, ItemVarianEditResponse } from '~/server/api/item/variant/edit'
-import type { ItemVariantRemoveResponse } from '~/server/api/item/variant/remove'
+import type { ItemVariantAddResponse } from '~/server/api/_item/variant/add'
+import type { ItemVarianEditPayload, ItemVarianEditResponse } from '~/server/api/_item/variant/edit'
+import type { ItemVariantRemoveResponse } from '~/server/api/_item/variant/remove'
 
 export async function removeItemVariant(variantId: number): Promise<ItemVariantRemoveResponse> {
   return await $fetch<ItemVariantRemoveResponse>('/api/item/variant/remove', {

@@ -1,4 +1,4 @@
-import { STLFileType } from '../api/item/variant/add'
+import { STLFileType } from '../api/_item/variant/add'
 import { writeFile } from 'fs/promises'
 import { join } from 'path'
 import { slugify } from './slugify'

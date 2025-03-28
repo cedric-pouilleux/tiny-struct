@@ -7,8 +7,8 @@
       <UButton
         type="submit"
         size="sm"
-        :trailing-icon="modelValue.scale ? 'bytesize:edit' : 'mingcute:plus-fill'"
-        :label="modelValue.scale ? 'Edit scale' : 'Save scale'"
+        :trailing-icon="modelValue.id ? 'bytesize:edit' : 'mingcute:plus-fill'"
+        :label="modelValue.id ? 'Edit scale' : 'Save scale'"
         variant="outline"
       />
     </div>
@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Scale } from '~/server/db/schema'
+import type { Scale } from '~/server/db/types/scales'
 import { addItemScale, editItemScale } from '~/services/itemScaleService'
 
 defineProps<{
@@ -36,6 +36,9 @@ async function handleUpsertScale() {
 }
 
 async function editScale() {
+  if (!modelValue.value.id || !modelValue.value.scale) {
+    return
+  }
   try {
     const scaleId = await editItemScale(modelValue.value as Scale)
     itemScaleSuccess(scaleId, 'edited')
@@ -50,7 +53,7 @@ async function addScale() {
     return
   }
   try {
-    const scaleId = await addItemScale({ scale: modelValue.value.scale })
+    const scaleId = await addItemScale(modelValue.value.scale)
     itemScaleSuccess(scaleId, 'added')
     emits('refresh')
   } catch (error: any) {

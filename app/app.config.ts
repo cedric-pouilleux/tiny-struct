@@ -2,29 +2,9 @@ export default defineAppConfig({
   ui: {
     card: {
       slots: {
-        root: 'rounded-[calc(var(--ui-radius)*5)]',
-        header: 'p-4 sm:px-6',
-        body: 'p-4 sm:p-6',
-        footer: 'p-4 sm:px-6'
-      },
-      variants: {
-        variant: {
-          solid: {
-            root: 'bg-(--ui-bg-inverted) text-(--ui-bg)'
-          },
-          outline: {
-            root: 'bg-(--ui-bg) ring ring-(--ui-border) divide-y divide-(--ui-border)'
-          },
-          soft: {
-            root: 'bg-(--ui-bg-elevated)/50 divide-y divide-(--ui-border)'
-          },
-          subtle: {
-            root: 'bg-(--ui-bg-elevated)/50 ring ring-(--ui-border) divide-y divide-(--ui-border)'
-          }
-        }
-      },
-      defaultVariants: {
-        variant: 'outline'
+        root: 'rounded-lg shadow-xs',
+        header: 'sm:pt-2 sm:pb-2 sm:pl-4 sm:pr-4 text-sm',
+        body: 'sm:pt-2 sm:pb-2 sm:pl-4 sm:pr-4'
       }
     }
   }

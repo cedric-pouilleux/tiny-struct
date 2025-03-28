@@ -1,13 +1,13 @@
-import type { ItemAddPayload } from '~/server/api/item/add'
-import type { ItemReponse } from '~/server/api/item/all.get'
-import type { ItemEditPayload } from '~/server/api/item/edit'
+import type { ItemReponse } from '~/server/api/_item/all.get'
+import type { ItemEditPayload } from '~/server/api/_item/edit'
+import type { CreateItemPayload, ItemWithTranslations } from '~/shared/types/items'
 
-export function getItems(): Promise<ItemReponse[]> {
-  return $fetch<ItemReponse[]>('/api/item/all')
+export function getItems(): Promise<ItemWithTranslations[]> {
+  return $fetch<ItemReponse[]>('/api/items')
 }
 
-export function addItem(payload: ItemAddPayload): Promise<number> {
-  return $fetch<number>('/api/item/add', {
+export function addItem(payload: CreateItemPayload): Promise<ItemWithTranslations> {
+  return $fetch<ItemWithTranslations>('/api/items', {
     method: 'POST',
     body: payload
   })

@@ -1,6 +1,6 @@
 import { db } from '~/server/db'
-import { users } from '~/server/db/schema'
 import { eq } from 'drizzle-orm'
+import { users } from '~/server/db/schema/'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)

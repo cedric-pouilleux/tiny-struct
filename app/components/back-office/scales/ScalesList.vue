@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Scale } from '~/server/db/schema'
+import type { NewScale } from '~/server/db/types/scales'
 import RemoveConfirmModal from '../ui/RemoveConfirmModal.vue'
 
 const overlay = useOverlay()
@@ -33,12 +33,12 @@ const modal = overlay.create(RemoveConfirmModal, {
 })
 
 defineProps<{
-  scales: Scale[]
+  scales: NewScale[]
 }>()
 
 const emits = defineEmits<{
   (e: 'remove', scaleId: number): void
-  (e: 'edit', scale: Scale): void
+  (e: 'edit', scale: NewScale): void
 }>()
 
 async function handleRemove(scaleId: number) {
